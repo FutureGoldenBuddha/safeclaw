@@ -12,26 +12,35 @@ Build a safer, more private OpenClaw setup with **rootless Docker**, a controlle
 
 **What you get**
 - **Privacy first** — run Llama-compatible models locally and keep **sensitive data** off third-party clouds. 🧠🔐  
-- **Defense in depth** — Docker rootless plus a forward proxy (Squid) to control and audit outbound traffic. 🛡️📡  
+<br>
+- **Defense in depth** — Docker rootless plus a forward proxy (Squid) to control outbound traffic. 🛡️📡  
+<br>
 - **Portable and practical** — works on any OS that supports rootless Docker and VS Code DevContainers. 💻🌍  
+<br>
 - **Developer-friendly** — DevContainer scripts, onboarding helpers, and maintenance toggles so you spend less time configuring and more time asking clever questions. ⚙️✨  
-- **GPU-ready** — prepared for NVIDIA and Intel GPUs with Ubuntu 24.04 instructions included. ⚡🖥️
+<br>
+- **GPU-ready** — prepared for NVIDIA and Intel GPUs, with Ubuntu 24.04 instructions included. ⚡🖥️
+<br>
 
-**Tone check**: this repo is for people who want a powerful local assistant without accidentally turning it into a data-leaking gremlin. 🦖➡️🦞
+**Tone check**: this repo is for people who want a local assistant without accidentally turning it into a data-leaking gremlin. 🦖➡️🦞
+
+**Possible constraints** I have a NVIDIA 4060 RTX with 8GB RAM, so if you have a different GPU and/or use a different model please adjust the context size and maximum tokens accordingly. I can make a list with different models configurations to make it easier, but I am currently using ministral 3B and happy with the results 😊. A trick is to write meaningful skills with smarter models on the web, asking them to make a SKIlL.md, MEMORY_snippet.md (a small section that you add in your main MEMORY.md file) and a README.md (for future reference). Then you place the skill folder with the files in the skills folder (try to say this fast twice in a row 🥴) and proceed to ask your local AI to "load the skill <skill folder name> and confirm it's loaded". This way your local ai agent gets smarter without overloading its memory files. I think we are going to need skills focusing in security measures also...
 
 ---
 
 ### Quick Start
 
 #### Prerequisites
-**Install and configure** GPU drivers for your hardware, Git, Docker with rootless mode enabled, Visual Studio Code with Dev Containers, Node.js, and pnpm. Place optional local Llama-compatible model files in `.devcontainer/models/` for best privacy. 📦🔧
+**Install and configure** GPU drivers in your host, and Docker with rootless mode enabled, Visual Studio Code with Dev Containers extension.  📦🔧
 
 #### Clone the repo
 
 ```bash
-git clone https://github.com/FutureGoldenBuddha/safe-openclaw.git
-cd safe-openclaw
+git clone https://github.com/FutureGoldenBuddha/safeclaw.git
+cd safeclaw
 ```
+
+Place local Llama-compatible model files in `.devcontainer/models/` for best privacy.
 
 Ensure your local model name matches in the root `docker-compose.yml` and `.devcontainer/containers/openclaw/debian/openclaw.json`. 🗂️✅
 
@@ -44,20 +53,23 @@ Open the project in VS Code and choose Reopen in Container or run Dev Containers
 
 ```bash
 docker compose up -d
+```
+
+Continue from inside the container shell. 🐚
+
+```bash
 docker exec -it openclaw sh
 ```
 
-Continue from inside the container shell if needed. 🐚
-
 #### Maintenance mode for temporary internet access
 
-Containers start with strict network restrictions. To temporarily allow internet access via a controlled Squid proxy, run from the host inside the `.devcontainer` folder:
+These containers start with strict network restrictions. To temporarily allow internet access via a controlled Squid proxy (or else you cannot install openclaw), run from the host and inside the `.devcontainer` folder:
 
 ```bash
 bash maintenance-on.sh
 ```
 
-When finished, lock it back down:
+When finished installing openclaw, lock it back down:
 
 ```bash
 bash maintenance-off.sh
@@ -65,9 +77,9 @@ bash maintenance-off.sh
 
 Think of maintenance-on as opening the hatch for a quick supply run and maintenance-off as closing it again so nothing sneaks out. 🚪🔐
 
-#### Post-start setup
+#### Run post-start setup (if you don't see de openclaw_install folder and its contents)
 
-Run the OpenClaw post-start script from the host:
+Run the OpenClaw post-start script from inside the container:
 
 ```bash
 bash .devcontainer/containers/openclaw/debian/post-start.sh
