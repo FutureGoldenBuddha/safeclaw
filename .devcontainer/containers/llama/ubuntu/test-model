@@ -1,0 +1,23 @@
+# test inside openclaw container
+
+# curl --request POST \
+#    --url http://llama:8080/completion \
+#    --header "Content-Type: application/json" \
+#    --data '{"prompt": "hello world", "n_predict": 128}'
+
+curl http://llama:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-qualquer-coisa" \
+  -d '{
+    "model": "Meta-Llama-3-8B-Instruct-Q8_0",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "Hello!"
+      }
+    ]
+  }'

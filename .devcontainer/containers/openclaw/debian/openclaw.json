@@ -1,0 +1,50 @@
+{
+  "tools": {
+    "allow": [ "group:fs", "group:runtime", "group:sessions" ]
+  },
+  "models": {
+    "providers": {
+      "llama": {
+        "baseUrl": "http://llama:8080/v1",
+        "apiKey": "llamacpp-local",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "Ministral-3-3B-Instruct-2512-Q8_0",
+            "name": "ministral 3B",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 50000,
+            "maxTokens": 2048
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "llama/Ministral-3-3B-Instruct-2512-Q8_0"
+      },
+      "models": {
+        "llama/Ministral-3-3B-Instruct-2512-Q8_0": {}
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.2.14",
+    "lastTouchedAt": "2026-02-15T02:09:20.126Z"
+  }
+}

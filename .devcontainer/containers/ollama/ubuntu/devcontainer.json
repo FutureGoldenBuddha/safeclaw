@@ -1,0 +1,21 @@
+{
+  "name": "Ollama Development",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "ollama",
+  "workspaceFolder": "/workspaces/ollama",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  
+  "postCreateCommand": "echo 'Ollama container starting...' && ollama serve > /dev/null 2>&1 &",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter"
+      ]
+    }
+  }
+}

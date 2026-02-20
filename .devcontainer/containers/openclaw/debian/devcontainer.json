@@ -1,0 +1,26 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
+{
+  "name": "Safe openclaw",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  // "dockerComposeFile": "docker-compose.yml", // geral
+  "dockerComposeFile": "docker-compose.yml", // picoclaw
+  "service": "openclaw",
+  //"dockerComposeFile": "./llama/docker-compose.yml", // llama
+  //"service": "llama",
+  "runArgs": ["--userns=keep-id", "--security-opt", "label=disable"],
+  // user da imagem principal, pede uma string
+  "containerUser": "1000:1000",
+  "remoteUser": "1000:1000",
+  // IMPORTANTE: Define onde o workspace será montado no container
+  "workspaceFolder": "/home/projeto",
+  // Monta TODO o repositório (pasta pai do .devcontainer)
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/projeto,type=bind",
+  // define pasta com permissoes para instalar npm
+  "containerEnv": {
+    "npm_config_cache": "/home/projeto/.npm-cache",
+    "npm_config_prefix": "/home/projeto/.npm-global"
+    },
+  // IMPORTANTE: nao Atualiza o UID do usuário remoto para corresponder ao host, para nao dar merd*
+  "updateRemoteUserUID": false
+}

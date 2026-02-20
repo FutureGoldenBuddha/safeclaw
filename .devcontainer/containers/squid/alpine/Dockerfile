@@ -1,0 +1,35 @@
+FROM alpine:latest
+LABEL maintainer="jose.pinho.oliveira@gmail.com"
+
+# 1. Create a group with GID 1000
+# 2. Create a user with UID 1000, no password (-D), and assign to the group
+# usado para tornar squid concordante com restantes containers 
+RUN addgroup -g 1000 node && \
+   adduser -u 1000 -G node -D node
+
+# Ensure the node user has permission to write to stdout/stderr
+RUN chown node:node /dev/stdout /dev/stderr || true
+# This gives the node user the group permissions shown in your ls output
+RUN addgroup node tty
+
+RUN apk update \
+&& apk add squid curl bash which su-exec \
+&& rm -rf /var/cache/apk/*
+
+# Copy the config file from the same directory as the Dockerfile
+COPY squid.conf /etc/squid/squid.conf
+COPY start-squid.sh /start-squid.sh
+
+RUN chmod +x /start-squid.sh \
+    && chmod 644 /etc/squid/squid.conf \
+    && chown squid:squid /etc/squid/squid.conf
+
+# Criar diretórios e dar permissões
+RUN mkdir -p /var/cache/squid /var/log/squid /var/run/squid && \
+    chown -R node:node /var/cache/squid /var/log/squid /var/run/squid && \
+    chmod -R 755 /var/cache/squid /var/log/squid /var/run/squid
+
+EXPOSE 3128/tcp
+
+ENTRYPOINT ["/start-squid.sh"]
+

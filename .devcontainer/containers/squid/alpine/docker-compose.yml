@@ -1,0 +1,48 @@
+volumes:
+  squid:
+    driver: local
+
+services:
+  openclaw_egress_proxy:
+    volumes:
+      - ./squid/log:/var/log/squid:rw
+    build: .
+    container_name: squid
+    user: node
+    ports:
+      - "3128:3128"
+    restart: always
+
+    networks:
+      - openclaw_internal   # recebe pedidos do agente
+      - openclaw_egress     # tem saída para o exterior
+
+    # --- limites de recursos (proxy leve) ------------------------------
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+    healthcheck:
+      test: ["CMD", "squid", "-v"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+
+# -------------------------------------------------------------
+# Rede interna isolada — sem acesso à internet por defeito.
+# O container openclaw só comunica com o proxy de saída.
+# -------------------------------------------------------------
+networks:
+  openclaw_internal:
+    driver: bridge
+    internal: true          # bloqueia tráfego de/para exterior
+    ipam:
+      config:
+        - subnet: 172.28.0.0/28   # sub-rede pequena e controlada
+
+  openclaw_egress:
+    driver: bridge
+    internal: false         # permite saída, mas só via proxy

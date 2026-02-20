@@ -1,0 +1,50 @@
+name: safe-openclaw
+
+services:
+  openclaw:
+    # monta o workspace no container
+    volumes:
+      - type: bind
+        source: ../../../..  # Pasta pai (raiz do projeto) >> openclaw >> containers >> .devcontainer >> raiz
+        target: /home/projeto
+    build: .
+    container_name: openclaw
+    user: "1000:1000"
+    
+    environment:
+      - NODE_ENV=development
+      #- OPENCLAW_REPO_DIR=/home/projeto
+      #- OPENCLAW_DATA=/home/projeto/openclaw_install/config  # This is the crucial line
+      - OPENCLAW_HOME=/home/projeto/openclaw_data
+      - OPENCLAW_CONFIG=/home/projeto/openclaw_data/config/openclaw.json  # This is the crucial line
+      - OPENCLAW_LOGS=/home/projeto/openclaw_data/logs
+      - OPENCLAW_WORKSPACE=/home/projeto/projetos
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
+      - OPENCLAW_GATEWAY_PORT=18789
+      - OPENCLAW_BRIDGE_PORT=18790
+      - OPENROUTER_API_KEY=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
+      - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
+      - PUID=${UID:-1000}
+      - PGID=${GID:-1000}
+    
+    ports:
+      - "18789:18789"  # Gateway
+      - "18790:18790"  # Bridge
+    
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    # networks:
+    #  - openclaw_internal
+
+networks:
+  openclaw_internal:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.28.0.0/28
+
+  openclaw_egress:
+    driver: bridge
+    internal: false

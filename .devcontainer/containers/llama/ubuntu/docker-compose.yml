@@ -1,0 +1,99 @@
+# versao do linux dos containers: Ubuntu 24.04.1 LTS
+# nome do grupo de containers
+name: safe-openclaw
+
+services:
+  llama:
+    build:
+      context: .
+      dockerfile: Dockerfile      
+    user: "1000:1000"
+    # user: "${CURRENT_UID:-1000}:${CURRENT_GID:-1000}"
+    userns_mode: "keep-id" # Essencial para rootless não dar "Permission Denied"
+    container_name: llama-safeopenclaw
+    # define pasta com permissoes para instalar npm no modo rootless
+    environment:
+      npm_config_cache: /home/projeto/.npm-cache
+      npm_config_prefix: /home/projeto/.npm-global
+      LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
+      USER_HOME: /home/projeto
+      #MODEL_PATH: /home/projeto/models/Llama-3.2-3B-Instruct-Q8_0.gguf
+      MODEL_PATH: /home/projeto/models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
+      # Força o Vulkan a carregar os ficheiros JSON corretos no container
+      # VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/intel_icd.json:/usr/share/vulkan/icd.d/nvidia_icd.json
+      # Podes também precisar das bibliotecas reais se a tua imagem base não as tiver
+      # LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+      # Opcional: Ajuda a depurar
+      VK_LOADER_DEBUG: all
+    ports:
+      - "8080:8080"
+    # monta o workspace no container
+    volumes:
+      - type: bind
+        source: ../../../..  # Pasta pai (raiz do projeto) >> openclaw >> containers >> .devcontainer >> raiz
+        target: /home/projeto
+      # - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d:ro # Mapeia os drivers do host
+      # - /etc/vulkan/icd.d:/etc/vulkan/icd.d:ro
+      # Mapeia APENAS o da NVIDIA do host (pois o runtime da NVIDIA gere isto)
+      # Se usares o 'runtime: nvidia' ou 'deploy: resources: reservations: devices: nvidia',
+      # nem precisas de mapear o nvidia_icd.json manualmente, ele faz sozinho.
+      #
+      # NÃO mapeies a pasta /usr/share/vulkan/icd.d inteira se instalares o mesa-vulkan-drivers,
+      # senão vais esconder o ficheiro da Intel que acabaste de instalar.
+    devices:
+      - /dev/dri:/dev/dri  # Passa a Intel GPU para o contentor
+    group_add:
+      - video
+      - render
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    entrypoint: ["/bin/sh", "-c"]
+    # command:
+    #   - >
+    #     /app/llama-server
+    #     --host 0.0.0.0
+    #     --port 8080
+    #     -m "$$MODEL_PATH"
+    #     -ngl 99
+    #     --ctx-size 8192
+    command:
+      - >
+        echo "=== DEBUG INFO ===" &&
+        echo "HOME: $$HOME" &&
+        echo "PWD: $$(pwd)" &&
+        echo "USER: $$(whoami)" &&
+        echo "UID: $$(id -u)" &&
+        echo "MODEL_PATH: $$MODEL_PATH" &&
+        echo "" &&
+        echo "=== LISTANDO /home ===" &&
+        ls -la /home/ &&
+        echo "" &&
+        echo "=== LISTANDO /home/projeto ===" &&
+        ls -la /home/projeto/ &&
+        echo "" &&
+        echo "=== LISTANDO /home/projeto/models ===" &&
+        ls -la /home/projeto/models/ &&
+        echo "" &&
+        echo "=== VERIFICANDO SE MODELO EXISTE ===" &&
+        if [ -f "$$MODEL_PATH" ]; then
+          echo "✓ Modelo encontrado: $$MODEL_PATH";
+          ls -lh "$$MODEL_PATH";
+        else
+          echo "✗ Modelo NÃO encontrado: $$MODEL_PATH";
+        fi &&
+        echo "" &&
+        echo "=== INICIANDO LLAMA-SERVER ===" &&
+        /app/llama-server
+        --host 0.0.0.0
+        --port 8080
+        -m "$$MODEL_PATH"
+        -ngl -1
+        --ctx-size 50000
+        --device Vulkan0,Vulkan1
+        -ts 70,30

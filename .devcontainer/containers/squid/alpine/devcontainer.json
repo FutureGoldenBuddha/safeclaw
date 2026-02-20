@@ -1,0 +1,52 @@
+{
+  "name": "OpenClaw (Seguro)",
+  // CORREÇÃO: Use 'dockerComposeFile' (singular) para referenciar o ficheiro
+  "dockerComposeFile": "./containers/squid/alpine/docker-compose.yml",
+  // O serviço principal do seu compose
+  //"service": "openclaw",
+  "service": "openclaw_egress_proxy",
+  // Onde o VS Code abre dentro do container
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "root", // <--- Isto resolve o "Permission denied" no /root/
+  // Utilizador não-root (coerente com o docker-compose.yml).
+  // CORREÇÃO: usar "1000:1000" (uid:gid) em vez de apenas "1000".
+  // O VS Code injeta este valor como override no compose — se for só
+  // um número, o Compose 2.27+ rejeita com "user must be a string".
+  // Usar o formato uid:gid força o VS Code a manter as aspas.
+  "containerUser": "1000:1000",
+  // --- CONFIGURAÇÕES DO VS CODE DENTRO DO CONTAINER ---
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "explorer.excludedPaths": [
+          ".env",
+          ".env.local",
+          ".env.production",
+          "**/.ssh",
+          "**/node_modules",
+          "**/.git/objects"
+        ],
+        // Configuração CORRIGIDA do terminal (a anterior estava obsoleta)
+        "terminal.integrated.defaultProfile.linux": "sh",
+        "terminal.integrated.profiles.linux": {
+          "sh": {
+            "path": "/bin/sh",
+            "icon": "terminal-bash"
+          }
+        },
+        "files.associations": {
+          "squid.conf": "shellscript",
+          "docker-compose*.yml": "dockercompose"
+        }
+      }
+    }
+  },
+  // --- PORTA PARA EXPOR (HEALTH CHECK) ---
+  "forwardPorts": [
+    8080 // "OpenClaw Health Check"
+  ],
+  // --- COMANDO PÓS-CRIAÇÃO ---
+  // Executado DENTRO do container openclaw após a criação.
+  // Verifica apenas a segurança do container.
+  "postCreateCommand": "echo '✅ Container OpenClaw iniciado como utilizador:' && id && echo '✅ Filesystem raiz é read-only:' && mount | grep ' / ' | grep 'ro' && echo 'Sistema Protegido' || echo 'Sistema Aberto (RW)'"
+}

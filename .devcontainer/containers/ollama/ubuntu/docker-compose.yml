@@ -1,0 +1,30 @@
+services:
+  ollama:
+    build: .
+    container_name: ollama-container  # Specific container name
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama/models  # Named volume for model persistence
+      - /usr/lib/wsl:/usr/lib/wsl # Provide the driver files to the container
+    # environment:
+    #  - OLLAMA_HOST=0.0.0.0
+    #  - OLLAMA_KEEP_ALIVE=24h
+    environment:
+      - OLLAMA_VULKAN=1
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib  # Tells Ollama where your NVIDIA/DirectX libs are
+    devices:
+      - /dev/dxg:/dev/dxg  # Map the actual WSL2 GPU device
+    mem_limit: 20g
+    restart: unless-stopped
+    # For GPU support (uncomment if needed):
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  ollama-models:  # Named volume definition

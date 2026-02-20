@@ -1,0 +1,6 @@
+# Automatically detect text files and handle them
+* text=auto
+# Force all shell scripts to always have LF line endings, even on Windows
+*.sh text eol=lf
+# Ensure .bash files also use LF
+*.bash text eol=lf
