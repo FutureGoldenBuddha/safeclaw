@@ -1,8 +1,10 @@
-# Safe Openclaw Project
+# Safeclaw: security tips for openclaw! 🦞 🫧
+
+Building a safer environment for openclaw enthusiasts
 
 ![Banner](./.devcontainer/assets/banner_1280x320.png)
 
-Just like a paella 👨‍🍳 🥘: mixed with docker rootless, llamacpp, squidproxy and love. 🦞
+::: ingredients: docker rootless, llamacpp, squidproxy and love
 
 Your own personal AI assistant. Any OS. Any Platform.
 
