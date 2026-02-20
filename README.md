@@ -25,9 +25,12 @@ Build a safer, more private OpenClaw setup with **rootless Docker**, a controlle
 **Tone check**: this repo is for people who want a local assistant without accidentally turning it into a data-leaking gremlin. 🦖➡️🦞
 
 <details>
-<summary>**Possible constraints** GPU card e local LLM</summary>
+<summary>**Possible constraints** GPU card(s) and local LLMs</summary>
 
-I have a NVIDIA 4060 RTX with 8GB RAM, so if you have a different GPU and/or use a different model please adjust the context size and maximum tokens accordingly. I can make a list with different models configurations to make it easier, but I am currently using ministral 3B and happy with the results 😊. A trick is to write meaningful skills with smarter models on the web, asking them to make a SKIlL.md, MEMORY_snippet.md (a small section that you add in your main MEMORY.md file) and a README.md (for future reference). Then you place the skill folder with the files in the skills folder (try to say this fast twice in a row 🥴) and proceed to ask your local AI to "load the skill <skill folder name> and confirm it's loaded". This way your local ai agent gets smarter without overloading its memory files. I think we are going to need skills focusing in security measures also...
+
+I have a NVIDIA 4060 RTX with 8GB RAM, so if you have a different GPU and/or use a different model please adjust the context size and maximum tokens accordingly. I can make a list with different models configurations to make it easier, but I am currently using ministral 3B and happy with the results 😊.
+
+A trick to make your agent smarter is to write meaningful skills with bigger models on the web, asking them to make a SKIlL.md, MEMORY_snippet.md (a small section that you add in your main MEMORY.md file) and a README.md (for future reference). Then you place the skill folder with the files in the skills folder (try to say this fast twice in a row 🥴) and proceed to ask your local AI to "load the skill <skill folder name> and confirm it's loaded". This way your local ai agent gets smarter without overloading its memory files. I think we are going to need skills focusing in security measures also...
 
 </details>
 
