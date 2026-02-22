@@ -3,9 +3,8 @@ services:
     build: .
     container_name: llama
     volumes:
-      - "./models:/models"
-      # O volume do vault continua aqui para os hooks se necessário
-      - "/home/jeo/Documents/ObsidianVault:/vault"
+      - "./models:/models" 
+      - "./config.yml:/app/config.yml"
     ports:
       - "8080:8080"
     
@@ -22,9 +21,9 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     
-    # Configuração de execução para tirar proveito das 2 GPUs
+    # Configuração de execução
     command: >
-      --model /models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
+      --model_name /models/Dolphin3.0-Qwen2.5-0.5B-exl2
       --host 0.0.0.0
       --port 8080
       --n-gpu-layers 99

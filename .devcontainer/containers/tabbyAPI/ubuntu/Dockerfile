@@ -27,9 +27,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app
 
+RUN git clone https://github.com/theroyallab/tabbyAPI.git
+
 # ✅ Copia o código da app diretamente do host (não precisa passar pelo builder)
 COPY . .
 
 EXPOSE 5000
 ENTRYPOINT ["python3"]
-CMD ["main.py"]
+CMD ["tabbyAPI/main.py"]
