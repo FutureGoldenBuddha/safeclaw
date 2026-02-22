@@ -43,7 +43,7 @@ To enforce the `archive(lesson): title` format, paste the file named `commit-msg
 * OpenClaw receives the error, realizes its mistake, checks the box in the file, and tries again.
 
 
-5. **Persistence:** Your vault is now a verified timeline of "concluded" knowledge.
+### 5. **Persistence:** Your vault is now a verified timeline of "concluded" knowledge.
 
 ### Why this is the "Gold Standard":
 
@@ -52,7 +52,7 @@ To enforce the `archive(lesson): title` format, paste the file named `commit-msg
 * **Autonomous Quality:** The IA is "forced" to be disciplined by your Speckit (the Hook).
 
 
-6. The "Recovery" System Prompt (Essential) 📝 ⚙️ 🛠️ 🔧
+### 6. The "Recovery" System Prompt (Essential) 📝 ⚙️ 🛠️ 🔧
 
 
 Since you are using Speckit + Hooks, the OpenClaw agent needs to know how to react when the "Pre-commit Audit" fails.
