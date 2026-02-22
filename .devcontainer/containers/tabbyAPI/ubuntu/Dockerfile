@@ -18,7 +18,7 @@ RUN rm pyproject.toml
 FROM nvidia/cuda:12.8.1-runtime-ubuntu24.04 AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python-is-python3 ca-certificates curl \
+    python3 ca-certificates curl git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia apenas o venv instalado, sem build-essential
