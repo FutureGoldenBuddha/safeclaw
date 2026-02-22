@@ -238,6 +238,8 @@ services:
         -m "$$MODEL_PATH"
         -ngl -1
         --ctx-size 32000
+    # --device Vulkan0,Vulkan1
+    # -ts 50,50
     restart: unless-stopped
     networks:
       - openclaw_internal_secure     # Rede do proxy seguro

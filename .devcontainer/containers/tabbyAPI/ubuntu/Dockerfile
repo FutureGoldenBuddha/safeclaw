@@ -1,0 +1,1 @@
+FROM ghcr.io/theroyallab/tabbyapi:latest

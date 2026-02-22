@@ -1,51 +1,30 @@
-# Usa a imagem oficial com suporte Vulkan
-FROM ghcr.io/ggml-org/llama.cpp:server-vulkan
+# 1. Usamos a imagem oficial do llama.cpp já compilada para CUDA
+# Essa imagem é baseada em Ubuntu e já vem com as bibliotecas necessárias
+FROM ghcr.io/ggml-org/llama.cpp:server-cuda
 
-# reforço para quando o llama está como container no conjunto todo
-# entrypoint corre como root, gosu faz a troca
-USER root 
+# Voltamos para root apenas para instalar utilitários administrativos
+USER root
 
-# Evita prompts interativos durante a instalação
+# Evita prompts interativos
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1. Instalação de dependências básicas e repositório oficial da Intel
+# 2. Instalamos apenas o essencial: git para seus hooks e gosu para gestão de usuários
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    gnupg \
-    wget \
+    git \
     sudo \
-    software-properties-common \
-    && wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | gpg --dearmor --output /usr/share/keyrings/intel-graphics.gpg \
-    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/gpu/ubuntu noble unified" > /etc/apt/sources.list.d/intel-gpu.list \
-    && apt-get update
-
-# 2. Instalação dos drivers de Mídia (VA-API) e Computação (OpenCL/Level Zero)
-# Equivalente ao seu processo no Arch, mas usando pacotes modernos (Broadwell+)
-RUN apt-get install -y --no-install-recommends \
-    build-essential \
-    intel-media-va-driver-non-free vainfo \
-    intel-opencl-icd clinfo \
-    mesa-vulkan-drivers libgl1 libglx-mesa0 \
-    sudo gosu \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
-# Verificar se o grupo 1000 já existe e usar nome apropriado: é ubuntu..
+# No CUDA, não precisamos mapear o grupo 'render' (992) manualmente 
+# como fazíamos para o Intel/Vulkan. O driver NVIDIA cuida disso.
 
-# Cria o grupo render com o GID 992 (mesmo do host) para poder mapear senao /dev/dri é mapeado como nogroup
-RUN groupadd -g 992 render && \
-    # useradd -m -G render ubuntu && \
-    # ou se o usuário já existe, apenas adiciona ao grupo:
-    usermod -a -G render ubuntu
-# adiciona user aos recursos de renderizacao da GPU no compose
+# Criamos o usuário ubuntu se ele não existir (na imagem oficial geralmente já existe)
+# mas garantimos que ele tenha permissões para o que precisamos
+RUN id -u ubuntu >/dev/null 2>&1 || useradd -m -u 1000 ubuntu
 
-# Expõe a porta que o OpenClaw vai usar
+# Expõe a porta do servidor
 EXPOSE 8080
 
-# usuario nao root
-# USER 1000:1000
-
-# (Opcional) Comando para verificar se a GPU é detectada ao iniciar
-CMD ["sh", "-c", "vainfo && clinfo"]
-
-# Comando padrão (sem ENTRYPOINT, deixa o CMD fazer tudo) - esta no compose
-# CMD ["llama-server", "--host", "0.0.0.0", "--port", "8080", "-ngl", "99", "--ctx-size", "8192"]
+# (Opcional) Verificação de saúde: nvidia-smi para ver se as GPUs estão lá
+CMD ["nvidia-smi"]
