@@ -33,6 +33,16 @@ I have a NVIDIA 4060 RTX with 8GB RAM, so if you have a different GPU and/or use
 
 A trick to make your agent smarter is to write meaningful skills with bigger models on the web, asking them to make a SKIlL.md, MEMORY_snippet.md (a small section that you add in your main MEMORY.md file) and a README.md (for future reference). Then you place the skill folder with the files in the skills folder (try to say this fast twice in a row 🥴) and proceed to ask your local AI to "load the skill <skill folder name> and confirm it's loaded". This way your local ai agent gets smarter without overloading its memory files. I think we are going to need skills focusing in security measures also...
 
+token speed comparison between local LLM providers with my specs:
+
+ollama -- xx t/s
+
+llama vulkan -- << t/s
+
+llama cuda -- 60 t/s
+
+tabbyApi -- xx t/s
+
 ---
 
 </details>
