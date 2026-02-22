@@ -10,7 +10,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY pyproject.toml .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir .[cu12,extras] requests
+    pip install --no-cache-dir .[cu12,extras] requests && \
+    pip install --no-cache-dir "huggingface-hub==0.25.2"
 
 RUN rm pyproject.toml
 
@@ -32,6 +33,9 @@ RUN git clone https://github.com/theroyallab/tabbyAPI.git
 # ✅ Copia o código da app diretamente do host (não precisa passar pelo builder)
 COPY . .
 
+# 2. MUDA O WORKDIR PARA DENTRO DO REPOSITÓRIO CLONADO
+WORKDIR /app/tabbyAPI
+
 EXPOSE 5000
 ENTRYPOINT ["python3"]
-CMD ["tabbyAPI/main.py"]
+CMD ["main.py"]
