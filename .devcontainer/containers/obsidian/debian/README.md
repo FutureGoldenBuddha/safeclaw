@@ -1,4 +1,4 @@
-This architecture is a powerhouse for personal knowledge management. By using **ObsidianPilot**, you are moving away from fragile APIs and moving toward a robust, filesystem-level integration that treats your vault like a professional code repository.
+This architecture is a powerhouse for personal knowledge management. By using **Obsidian-MCP**, you are moving away from fragile APIs and moving toward a robust, filesystem-level integration that treats your vault like a professional code repository.
 
 Here is the complete setup in English, following **First Principles**: data integrity, modularity, and automated validation.
 
@@ -51,8 +51,14 @@ To enforce the `archive(lesson): title` format, paste the file named `commit-msg
 * **Immutable Proof:** Using `git` means you can prove *when* a lesson was mastered.
 * **Autonomous Quality:** The IA is "forced" to be disciplined by your Speckit (the Hook).
 
-6. The "Recovery" System Prompt (Essential)
-Since you are using Speckit + Hooks, the OpenClaw agent needs to know how to react when the "Pre-commit Audit" fails. Add this to your OpenClaw System Instructions:
+
+6. The "Recovery" System Prompt (Essential) 📝 ⚙️ 🛠️ 🔧
+
+
+Since you are using Speckit + Hooks, the OpenClaw agent needs to know how to react when the "Pre-commit Audit" fails.
+
+
+Add this to your OpenClaw System Instructions:
 
 Memory & Archiving Protocol:
 

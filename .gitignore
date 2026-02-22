@@ -19,6 +19,8 @@ models
 git-start.sh
 git-push.sh
 push
+# obsidian vault
+.devcontainer/containers/obsidian/debian/vault
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
