@@ -1,0 +1,31 @@
+services:
+  # The MCP Server
+  obsidian-pilot:
+    build: .
+    container_name: obsidian-pilot
+    ports:
+      - "3000:3000" # Exposes the MCP server to the host and other containers
+    volumes:
+      - "/home/jeo/documents/obsidian/claw:/vault"
+      # Ensure you have a ./hooks folder next to this file containing the 'pre-commit' script
+      - "./hooks:/app/hooks"
+    environment:
+      - OBSIDIAN_VAULT_PATH=/vault
+      - OBSIDIAN_LOG_LEVEL=DEBUG
+      # If the server requires an explicit host bind:
+      - HOST=0.0.0.0 
+      - PORT=3000
+    restart: unless-stopped
+
+  # The AI Agent
+#  openclaw:
+#    image: openclaw/openclaw:latest
+#    container_name: openclaw
+#    depends_on:
+#      - obsidian-pilot
+#    volumes:
+#      - ./openclaw_config:/app/config
+#      - "/your/local/path/to/vault:/vault"
+#    environment:
+#      - MCP_SERVER_URL=http://obsidian-pilot:3000/sse
+#    restart: unless-stopped

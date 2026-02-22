@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# ANSI colors for terminal output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "🔍 ${GREEN}Audit in progress: Checking Archive integrity...${NC}"
+
+# Identify files being moved to the Archive folder
+STAGED_FILES=$(git diff --cached --name-only | grep "Archive/")
+
+for FILE in $STAGED_FILES; do
+    # First Principle Check: No open tasks allowed in archived lessons
+    if grep -q "\[ \]" "$FILE"; then
+        echo -e "${RED}❌ AUDIT FAILED: $FILE has pending tasks (- [ ]).${NC}"
+        echo "The OpenClaw failed to extract all lessons or finish the work."
+        exit 1 # This stops the commit
+    fi
+done
+
+echo -e "✅ ${GREEN}Audit passed. Archiving...${NC}"
+exit 0

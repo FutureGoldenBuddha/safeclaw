@@ -1,0 +1,9 @@
+context: obsidian integration:
+
+writing from first-principles and saving lessons to memory
+
+ > https://clawhub.ai/artyomx33/first-principles-decomposer
+
+ > problem: no connections
+
+use speckit + cc hooks to make it check for done. Use the precommit hook to confirm things are done and archived correctly

@@ -1,0 +1,8 @@
+#!/bin/bash
+COMMIT_MSG=$(cat $1)
+PATTERN="^(feat|fix|chore|archive|docs)(\(.+\))?: .+"
+
+if [[ ! $COMMIT_MSG =~ $PATTERN ]]; then
+    echo -e "❌ ${RED}Invalid Format!${NC} Use: archive(topic): description"
+    exit 1
+fi
