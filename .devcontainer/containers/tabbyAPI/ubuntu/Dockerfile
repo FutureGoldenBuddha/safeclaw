@@ -10,8 +10,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY pyproject.toml .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir .[cu12,extras] requests && \
-    pip install --no-cache-dir "huggingface-hub==0.25.2"
+    pip install --no-cache-dir .[cu12] requests
 
 RUN rm pyproject.toml
 
