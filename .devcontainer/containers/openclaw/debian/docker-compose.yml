@@ -22,7 +22,7 @@ services:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
       - OPENCLAW_GATEWAY_PORT=18789
       - OPENCLAW_BRIDGE_PORT=18790
-      - OPENROUTER_API_KEY=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
+      - OPENROUTER_API_KEY=
       - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
       - PUID=${UID:-1000}
       - PGID=${GID:-1000}

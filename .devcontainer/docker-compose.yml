@@ -4,7 +4,6 @@
 # Aplica as seguintes medidas de segurança:
 #   • Execução como utilizador não-root (uid/gid 1000)
 #   • Sistema de ficheiros raiz somente leitura (read-only)
-#   • tmpfs para /tmp com noexec e nosuid
 #   • no-new-privileges (impede escalada de privilégios)
 #   • Todas as capabilities Linux removidas (cap-drop: ALL)
 #   • Limites de CPU e memória
@@ -20,6 +19,22 @@ name: safe-openclaw
 # -------------------------------------------------------------
     
 services:
+
+  # -----------------------------------------------------------
+  # main memory - obsidian
+  # -----------------------------------------------------------
+  # The MCP Server
+  obsidian-mcp:
+    build: ./containers/obsidian/debian  # Debian-based
+    container_name: obsidian-mcp
+    ports:
+      - "${MCP_PORT:-3102}:3101" # Exposes the MCP server to the host and other containers
+    volumes:
+      - "${VAULT_PATH:-./vault}:/vault"
+      # Ensure you have a ./hooks folder next to this file containing the 'pre-commit' script
+      - "./hooks:/app/hooks"
+    restart: unless-stopped
+
   # -----------------------------------------------------------
   # SERVIÇO PRINCIPAL — OpenClaw Agent
   # -----------------------------------------------------------
@@ -29,6 +44,7 @@ services:
       - type: bind
         source: ..  # Pasta pai (raiz do projeto)
         target: /home/projeto
+      - "${VAULT_PATH:-./vault}:/vault" # obsidian
     build: ./containers/openclaw/debian  # Debian-based
     container_name: openclaw
     # --- utilizador não-root -------------------------------------------
@@ -59,6 +75,7 @@ services:
       # Exclui serviços internos do proxy
       - NO_PROXY=localhost,127.0.0.1,llama
       - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
+      - MCP_SERVER_URL=http://obsidian-pilot:3000/sse
     ports:
       - "18789:18789"  # Gateway
       - "18790:18790"  # Bridge
@@ -78,6 +95,8 @@ services:
     networks:
       - openclaw_internal_secure     # Rede do proxy seguro
       - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
+    depends_on:
+      - obsidian-mcp
     # --- healthcheck ---------------------------------------------------
     healthcheck:
       test: ["CMD", "node", "--version"]

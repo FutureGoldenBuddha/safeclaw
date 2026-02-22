@@ -1,20 +1,14 @@
 services:
   # The MCP Server
-  obsidian-pilot:
+  obsidian-mcp:
     build: .
-    container_name: obsidian-pilot
+    container_name: obsidian-mcp
     ports:
-      - "3000:3000" # Exposes the MCP server to the host and other containers
+      - "${MCP_PORT:-3102}:3101" # Exposes the MCP server to the host and other containers
     volumes:
-      - "/home/jeo/documents/obsidian/claw:/vault"
+      - "${VAULT_PATH:-./vault}:/vault"
       # Ensure you have a ./hooks folder next to this file containing the 'pre-commit' script
       - "./hooks:/app/hooks"
-    environment:
-      - OBSIDIAN_VAULT_PATH=/vault
-      - OBSIDIAN_LOG_LEVEL=DEBUG
-      # If the server requires an explicit host bind:
-      - HOST=0.0.0.0 
-      - PORT=3000
     restart: unless-stopped
 
   # The AI Agent

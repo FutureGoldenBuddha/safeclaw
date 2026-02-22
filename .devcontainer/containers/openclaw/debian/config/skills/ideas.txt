@@ -7,3 +7,5 @@ writing from first-principles and saving lessons to memory
  > problem: no connections
 
 use speckit + cc hooks to make it check for done. Use the precommit hook to confirm things are done and archived correctly
+
+ > implementing obsidian mcp server + precommit hook
