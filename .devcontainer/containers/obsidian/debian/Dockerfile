@@ -23,6 +23,9 @@ RUN chmod +x /app/commit-msg
 RUN echo '#!/bin/bash\n\
 # Ensure Git treats the mounted volume as safe\n\
 git config --global --add safe.directory /vault\n\
+# 2. Define "Auditor" identity
+git config --global user.email "ai-auditor@openclaw.local"
+git config --global user.name "OpenClaw AI"
 \n\
 # Inject the Pre-commit Hook into the vault filesystem\n\
 mkdir -p /vault/.git/hooks\n\

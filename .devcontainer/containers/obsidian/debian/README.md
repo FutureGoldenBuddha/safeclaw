@@ -58,7 +58,7 @@ To enforce the `archive(lesson): title` format, paste the file named `commit-msg
 Since you are using Speckit + Hooks, the OpenClaw agent needs to know how to react when the "Pre-commit Audit" fails.
 
 
-Add this to your OpenClaw System Instructions:
+Add this to your OpenClaw System Instructions (MEMORY.md file):
 
 Memory & Archiving Protocol:
 
