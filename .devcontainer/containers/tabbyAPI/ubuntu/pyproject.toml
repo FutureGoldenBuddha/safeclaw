@@ -1,0 +1,236 @@
+[build-system]
+requires = [
+    "packaging",
+    "setuptools",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+# We're not building the project itself
+[tool.setuptools]
+py-modules = []
+
+[project]
+name = "tabbyAPI"
+version = "0.0.1"
+description = "An OAI compatible exllamav2 API that's both lightweight and fast"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi-slim >= 0.115",
+    "pydantic == 2.11.0",
+    "ruamel.yaml",
+    "rich",
+    "uvicorn >= 0.28.1",
+    "jinja2 >= 3.0.0",
+    "loguru",
+    "sse-starlette >= 2.2.0",
+    "packaging",
+    "tokenizers >= 0.21.0",
+    "formatron >= 0.4.11",
+    "kbnf >= 0.4.1",
+    "aiofiles",
+    "aiohttp",
+    "async_lru",
+    "huggingface_hub",
+    "psutil",
+    "httptools >= 0.5.0",
+    "pillow",
+
+    # Improved asyncio loops
+    "uvloop ; platform_system == 'Linux' and platform_machine == 'x86_64'",
+    "winloop ; platform_system == 'Windows'",
+
+    # For python 3.12
+    "setuptools ; python_version >= '3.12'"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/theroyallab/tabbyAPI"
+
+[project.optional-dependencies]
+extras = [
+    # Heavy dependencies that aren't for everyday use
+    "infinity-emb",
+    "sentence-transformers",
+]
+dev = [
+    "ruff == 0.11.10"
+]
+cu12 = [
+    # Torch (Extra index URLs not support in pyproject.toml)
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp313-cp313-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.13'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp312-cp312-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.12'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp311-cp311-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.11'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp310-cp310-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.10'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp313-cp313-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp311-cp311-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "torch @ https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+
+    # Exl2
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp313-cp313-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.13'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp312-cp312-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.12'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp311-cp311-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.11'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp310-cp310-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.10'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp313-cp313-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp312-cp312-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp311-cp311-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+cu128.torch2.9.0-cp310-cp310-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+
+    # Exl3
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp313-cp313-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.13'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp312-cp312-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.12'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp311-cp311-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.11'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp310-cp310-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.10'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp313-cp313-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp312-cp312-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp311-cp311-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "exllamav3 @ https://github.com/turboderp-org/exllamav3/releases/download/v0.0.21/exllamav3-0.0.21+cu128.torch2.9.0-cp310-cp310-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+
+    # Windows FA2 from https://github.com/kingbri1/flash-attention/releases
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp313-cp313-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.13'",
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp312-cp312-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.12'",
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp311-cp311-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.11'",
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp310-cp310-win_amd64.whl ; platform_system == 'Windows' and python_version == '3.10'",
+
+    # Linux FA2 from https://github.com/kingbri1/flash-attention/releases
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp313-cp313-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp312-cp312-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp311-cp311-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "flash_attn @ https://github.com/kingbri1/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu128torch2.9.0cxx11abiFALSE-cp310-cp310-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+]
+amd = [
+    # Torch triton for ROCm
+    "pytorch_triton_rocm @ https://download.pytorch.org/whl/pytorch_triton_rocm-3.4.0-cp313-cp313-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "pytorch_triton_rocm @ https://download.pytorch.org/whl/pytorch_triton_rocm-3.4.0-cp312-cp312-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "pytorch_triton_rocm @ https://download.pytorch.org/whl/pytorch_triton_rocm-3.4.0-cp311-cp311-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "pytorch_triton_rocm @ https://download.pytorch.org/whl/pytorch_triton_rocm-3.4.0-cp310-cp310-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+
+    # Torch
+    "torch @ https://download.pytorch.org/whl/rocm6.4/torch-2.9.0%2Brocm6.4-cp313-cp313-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "torch @ https://download.pytorch.org/whl/rocm6.4/torch-2.9.0%2Brocm6.4-cp312-cp312-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "torch @ https://download.pytorch.org/whl/rocm6.4/torch-2.9.0%2Brocm6.4-cp311-cp311-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "torch @ https://download.pytorch.org/whl/rocm6.4/torch-2.9.0%2Brocm6.4-cp310-cp310-manylinux_2_28_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+
+    # Exl2
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+rocm6.4.torch2.9.0-cp313-cp313-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.13'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+rocm6.4.torch2.9.0-cp312-cp312-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.12'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+rocm6.4.torch2.9.0-cp311-cp311-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.11'",
+    "exllamav2 @ https://github.com/turboderp-org/exllamav2/releases/download/v0.3.2/exllamav2-0.3.2+rocm6.4.torch2.9.0-cp310-cp310-linux_x86_64.whl ; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version == '3.10'",
+]
+
+# MARK: Ruff options
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".git-rewrite",
+    ".mypy_cache",
+    ".pyenv",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "colab",
+    "docker",
+]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.10
+target-version = "py310"
+
+[tool.ruff.lint]
+# Enable preview
+preview = true
+
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+# Enable flake8-bugbear (`B`) rules, in addition to the defaults.
+select = ["E4", "E7", "E9", "F", "B"]
+extend-select = [
+    "D419",  # empty-docstring
+    "PLC2401",  # non-ascii-name
+    "E501",  # line-too-long
+    "W291",  # trailing-whitespace
+    "PLC0414",  # useless-import-alias
+    "PLE0101",  # return-in-init
+    "F706",  # return-outside-function
+    "F704",  # yield-outside-function
+    "PLE0116",  # continue-in-finally
+    "PLE0117",  # nonlocal-without-binding
+    "PLE0241",  # duplicate-bases
+    "PLE0302",  # unexpected-special-method-signature
+    "PLE0604",  # invalid-all-object
+    "PLE0704",  # misplaced-bare-raise
+    "PLE1205",  # logging-too-many-args
+    "PLE1206",  # logging-too-few-args
+    "PLE1307",  # bad-string-format-type
+    "PLE1310",  # bad-str-strip-call
+    "PLE1507",  # invalid-envvar-value
+    "PLR0124",  # comparison-with-itself
+    "PLR0202",  # no-classmethod-decorator
+    "PLR0203",  # no-staticmethod-decorator
+    "PLR0206",  # property-with-parameters
+    "PLR1704",  # redefined-argument-from-local
+    "PLR1711",  # useless-return
+    "C416",  # unnecessary-comprehension
+    "PLW0108",  # unnecessary-lambda
+    "PLW0127",  # self-assigning-variable
+    "PLW0129",  # assert-on-string-literal
+    "PLW0602",  # global-variable-not-assigned
+    "PLW0604",  # global-at-module-level
+    "F401",  # unused-import
+    "F841",  # unused-variable
+    "E722",  # bare-except
+    "PLW0711",  # binary-op-exception
+    "PLW1501",  # bad-open-mode
+    "PLW1508",  # invalid-envvar-default
+    "PLW1509",  # subprocess-popen-preexec-fn
+]
+ignore = [
+    "PLR6301",  # no-self-use
+    "UP004",  # useless-object-inheritance
+    "PLR0904",  # too-many-public-methods
+    "PLR0911",  # too-many-return-statements
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0914",  # too-many-locals
+    "PLR0915",  # too-many-statements
+    "PLR0916",  # too-many-boolean-expressions
+    "PLW0120",  # useless-else-on-loop
+    "PLW0406",  # import-self
+    "PLW0603",  # global-statement
+    "PLW1641",  # eq-without-hash
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = ["B"]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

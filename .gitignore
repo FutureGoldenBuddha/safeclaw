@@ -15,10 +15,14 @@ openclaw_data
 projetos
 # modelos
 models
+.devcontainer/containers/llama/ubuntu/models
+.devcontainer/containers/tabbyAPI/ubuntu/models
+
 # git bash
 git-start.sh
 git-push.sh
 push
+
 # obsidian vault
 .devcontainer/containers/obsidian/debian/vault
 

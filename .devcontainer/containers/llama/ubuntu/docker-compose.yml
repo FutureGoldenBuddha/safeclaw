@@ -24,8 +24,8 @@ services:
     
     # Configuração de execução para tirar proveito das 2 GPUs
     command: >
-      --model /models/Llama-3.2-3B-Instruct-Q8_0.gguf
+      --model /models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
       --host 0.0.0.0
       --port 8080
-      --n-gpu-layers 99   # Garante que o modelo vá todo para a VRAM
-      --ctx-size 50000
+      --n-gpu-layers 99
+      --ctx-size 32000
