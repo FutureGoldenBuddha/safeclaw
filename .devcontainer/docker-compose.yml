@@ -51,8 +51,6 @@ services:
     user: "1000:1000"
     environment:
       - NODE_ENV=development
-      #- OPENCLAW_REPO_DIR=/home/projeto
-      #- OPENCLAW_DATA=/home/projeto/openclaw_install/config  # This is the crucial line
       - OPENCLAW_HOME=/home/projeto/openclaw_data
       - OPENCLAW_CONFIG=/home/projeto/openclaw_data/config/openclaw.json  # This is the crucial line
       - OPENCLAW_LOGS=/home/projeto/openclaw_data/logs
@@ -75,7 +73,7 @@ services:
       # Exclui serviços internos do proxy
       - NO_PROXY=localhost,127.0.0.1,llama
       - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
-      - MCP_SERVER_URL=http://obsidian-pilot:3000/sse
+      - MCP_SERVER_URL=http://obsidian-mcp:${MCP_PORT:-3102}/mcp
     ports:
       - "18789:18789"  # Gateway
       - "18790:18790"  # Bridge
