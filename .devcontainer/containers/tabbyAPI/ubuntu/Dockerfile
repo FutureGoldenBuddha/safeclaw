@@ -29,11 +29,12 @@ WORKDIR /app
 
 RUN git clone https://github.com/theroyallab/tabbyAPI.git
 
-# ✅ Copia o código da app diretamente do host (não precisa passar pelo builder)
-COPY . .
 
 # 2. MUDA O WORKDIR PARA DENTRO DO REPOSITÓRIO CLONADO
 WORKDIR /app/tabbyAPI
+
+# ✅ Copia o código da app/tabbyAPI diretamente do host 
+COPY . .
 
 EXPOSE 5000
 ENTRYPOINT ["python3"]
