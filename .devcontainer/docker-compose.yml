@@ -169,8 +169,8 @@ services:
       - NAME=TabbyAPI
       - NVIDIA_VISIBLE_DEVICES=all
     volumes:
-      - ./models:/app/tabbyAPI/models
-      # - /path/to/config.yml:/app/config.yml               # Change me
+      - ./containers/tabbyAPI/ubuntu/models:/app/tabbyAPI/models
+      - ./containers/tabbyAPI/ubuntu/config.yml:/app/tabbyAPI/config.yml
       # - /path/to/api_tokens.yml:/app/api_tokens.yml       # Change me
     # no intel support
     # cuda
@@ -186,11 +186,11 @@ services:
       - openclaw_internal_secure     # Rede do proxy seguro
       - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
     # --- healthcheck: verifica se a API do tabbyapi responde ----
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://tabbyapi:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
 # -------------------------------------------------------------
 # Rede interna isolada — sem acesso à internet por defeito.
