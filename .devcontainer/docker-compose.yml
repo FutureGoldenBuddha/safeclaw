@@ -186,11 +186,11 @@ services:
       - openclaw_internal_secure     # Rede do proxy seguro
       - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
     # --- healthcheck: verifica se a API do tabbyapi responde ----
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 # -------------------------------------------------------------
 # Rede interna isolada — sem acesso à internet por defeito.
