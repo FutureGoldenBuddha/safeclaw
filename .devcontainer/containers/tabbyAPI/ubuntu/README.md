@@ -25,7 +25,7 @@ docker exec ubuntu-tabbyapi-1 curl http://localhost:5000/v1/chat/completions \
   -H "Authorization: Bearer <tabby_api_key>" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "nanbeige",
+    "model": "Nanbeige4.1-3B-EXL2-8.0bpw",
     "messages": [{"role": "user", "content": "Hello!"}],
     "max_tokens": 50
   }'

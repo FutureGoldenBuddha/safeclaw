@@ -3,13 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: tabbyapi
     ports:
       - "5000:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     environment:
       - NAME=TabbyAPI
       - NVIDIA_VISIBLE_DEVICES=all
@@ -17,10 +13,7 @@ services:
       - ./models:/app/tabbyAPI/models
       # - /path/to/config.yml:/app/config.yml               # Change me
       # - /path/to/api_tokens.yml:/app/api_tokens.yml       # Change me
-    # intel
-    devices:
-      - /dev/kfd
-      - /dev/dri 
+    # no intel support
     # cuda
     deploy:
       resources:
@@ -29,3 +22,8 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

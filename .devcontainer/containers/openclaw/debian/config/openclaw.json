@@ -5,13 +5,13 @@
   "models": {
     "providers": {
       "llama": {
-        "baseUrl": "http://llama:8080/v1",
-        "apiKey": "llamacpp-local",
+        "baseUrl": "http://tabbyapi:5000/v1",
+        "apiKey": "${TABBY_API_KEY}",
         "api": "openai-completions",
         "models": [
           {
-            "id": "Ministral-3-3B-Instruct-2512-Q8_0",
-            "name": "ministral 3B",
+            "id": "Nanbeige4.1-3B-EXL2-8.0bpw",
+            "name": "nanbeige 3B",
             "reasoning": false,
             "input": [
               "text"
@@ -32,19 +32,15 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "llama/Ministral-3-3B-Instruct-2512-Q8_0"
+        "primary": "tabbyapi/Nanbeige4.1-3B-EXL2-8.0bpw"
       },
       "models": {
-        "llama/Ministral-3-3B-Instruct-2512-Q8_0": {}
+        "tabbyapi/Nanbeige4.1-3B-EXL2-8.0bpw": {}
       }
     }
   },
   "commands": {
     "native": "auto",
     "nativeSkills": "auto"
-  },
-  "meta": {
-    "lastTouchedVersion": "2026.2.14",
-    "lastTouchedAt": "2026-02-15T02:09:20.126Z"
   }
 }

@@ -12,7 +12,7 @@
 #   • Healthcheck integrado
 # =============================================================
 # Name of the Compose project (used as prefix for container names)
-name: safe-openclaw
+name: safeclaw
 # -------------------------------------------------------------
 # Volumes nomeados — espaço de trabalho dedicado ao agente.
 # Nunca monta o diretório home do host.
@@ -62,16 +62,16 @@ services:
       - PUID=${UID:-1000}
       - PGID=${GID:-1000}
       - LLM_TYPE=openai  # ou 'generic', 'local' dependendo da ferramenta
-      - OPENAI_API_BASE=http://llama:8080/v1
-      - OPENAI_BASE_URL=http://llama:8080/v1
-      - OPENAI_API_KEY=llamacpp-local
-      - MODEL_NAME=Llama-3.2-3B-Instruct-Q8_0.gguf # Opcional, mas ajuda
+      - OPENAI_API_BASE=http://tabbyapi:5000/v1
+      - OPENAI_BASE_URL=http://tabbyapi:5000/v1
+      - OPENAI_API_KEY=${TABBY_API_KEY}
+      - MODEL_NAME=Nanbeige4.1-3B-EXL2-8.0bpw # Opcional, mas ajuda
       - PROXY_MODE=OPEN  # Variável de controle: RESTRICTED ou OPEN
       # ⭐⭐ VARIÁVEIS - herdam do shell/scripts
       - HTTP_PROXY=http://open_proxy_temp:3128
       - HTTPS_PROXY=http://open_proxy_temp:3128
       # Exclui serviços internos do proxy
-      - NO_PROXY=localhost,127.0.0.1,llama
+      - NO_PROXY=localhost,127.0.0.1,tabbyapi
       - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
       - MCP_SERVER_URL=http://obsidian-mcp:${MCP_PORT:-3102}/mcp
     ports:
@@ -155,41 +155,26 @@ services:
           - open_proxy_temp
 
   # -----------------------------------------------------------
-  # OLLAMA — servidor de modelos LLM local
+  # tabbyAPI — servidor de modelos LLM local
   # Sem portas expostas para o host — só acessível na rede
-  # interna pelo OpenClaw via http://ollama:11434
+  # interna pelo OpenClaw via http://tabbyapi:5000
   # Usa o proxy de saída para fazer download de modelos.
   # -----------------------------------------------------------
-  llama:
-    build: 
-      context: ./containers/llama/ubuntu
-      dockerfile: Dockerfile   
-    container_name: llama  # Specific container name
-    user: "0:0"  # corre como root
-    security_opt: # idem aspas
-      - "label=disable"
-    # define pasta com permissoes para instalar npm no modo rootless
-    environment:
-      npm_config_cache: /home/projeto/.npm-cache
-      npm_config_prefix: /home/projeto/.npm-global
-      LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
-      USER_HOME: /home/projeto
-      MODEL_PATH: /home/projeto/models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
-      NVIDIA_VISIBLE_DEVICES: all
-      NVIDIA_DRIVER_CAPABILITIES: all,compute,graphics,video,utility
-      VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/intel_icd.json:/etc/vulkan/icd.d/nvidia_icd.json
-      VK_LOADER_DEBUG: all
+  tabbyapi:
+    build:
+      context: ./containers/tabbyAPI/ubuntu
+    container_name: tabbyapi
     ports:
-      - "8080:8080"
-    # monta o workspace no container
+      - "5000:5000"
+    environment:
+      - NAME=TabbyAPI
+      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
-      - type: bind
-        source: ..  # Pasta pai (raiz do projeto) >> openclaw >> containers >> .devcontainer >> raiz
-        target: /home/projeto
-    group_add:
-      - "992" # render
-    devices:
-      - /dev/dri:/dev/dri  # Passa a Intel GPU para o contentor
+      - ./models:/app/tabbyAPI/models
+      # - /path/to/config.yml:/app/config.yml               # Change me
+      # - /path/to/api_tokens.yml:/app/api_tokens.yml       # Change me
+    # no intel support
+    # cuda
     deploy:
       resources:
         reservations:
@@ -197,59 +182,16 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    # runtime: nvidia  # em vez do deploy.resources
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - >
-        echo "=== DEBUG INFO ===" &&
-        echo "HOME: $$HOME" &&
-        echo "PWD: $$(pwd)" &&
-        echo "USER: $$(whoami)" &&
-        echo "UID: $$(id -u)" &&
-        echo "MODEL_PATH: $$MODEL_PATH" &&
-        echo "" &&
-        echo "=== LISTANDO /home ===" &&
-        ls -la /home/ &&
-        echo "" &&
-        echo "=== LISTANDO /home/projeto ===" &&
-        ls -la /home/projeto/ &&
-        echo "" &&
-        echo "=== LISTANDO /home/projeto/models ===" &&
-        ls -la /home/projeto/models/ &&
-        echo "" &&
-        echo "=== VERIFICANDO SE MODELO EXISTE ===" &&
-        if [ -f "$$MODEL_PATH" ]; then
-          echo "✓ Modelo encontrado: $$MODEL_PATH";
-          ls -lh "$$MODEL_PATH";
-        else
-          echo "✗ Modelo NÃO encontrado: $$MODEL_PATH";
-        fi &&
-        echo "" &&
-        echo "=== testa comunicacao com dev/dri ===" &&
-        echo "test -w /dev/dri/renderD128 && echo 'Acesso OK' || echo 'Sem acesso'" &&
-        echo "=== Confirma permissões no dev/dri ===" &&
-        ls -la /dev/dri/ &&
-        echo "" &&
-        echo "=== INICIANDO LLAMA-SERVER ===" &&
-        echo "=== SWITCHING TO USER 1000 ===" &&
-        exec gosu 1000:1000 /app/llama-server
-        --host 0.0.0.0
-        --port 8080
-        -m "$$MODEL_PATH"
-        -ngl -1
-        --ctx-size 32000
     restart: unless-stopped
     networks:
       - openclaw_internal_secure     # Rede do proxy seguro
       - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
-    # --- healthcheck: verifica se a API do llama responde ----
+    # --- healthcheck: verifica se a API do tabbyapi responde ----
     healthcheck:
-      # --vê se o ollama existe...
-      test: ["CMD-SHELL", "pgrep llama || exit 1"]
-      interval: 15s
-      timeout: 5s
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/health"]
+      interval: 30s
+      timeout: 10s
       retries: 3
-      start_period: 20s # Increased to give the model/GPU time to initialize
 
 # -------------------------------------------------------------
 # Rede interna isolada — sem acesso à internet por defeito.
