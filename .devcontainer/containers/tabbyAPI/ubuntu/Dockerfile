@@ -29,12 +29,17 @@ WORKDIR /app
 
 RUN git clone https://github.com/theroyallab/tabbyAPI.git
 
-
 # 2. MUDA O WORKDIR PARA DENTRO DO REPOSITÓRIO CLONADO
 WORKDIR /app/tabbyAPI
 
 # ✅ Copia o código da app/tabbyAPI diretamente do host 
 COPY . .
+
+# Cria o grupo render com o GID 992 (mesmo do host) para poder mapear senao /dev/dri é mapeado como nogroup
+RUN groupadd -g 992 render && \
+    # useradd -m -G render ubuntu && \
+    # ou se o usuário já existe, apenas adiciona ao grupo:
+    usermod -a -G render ubuntu
 
 EXPOSE 5000
 ENTRYPOINT ["python3"]
