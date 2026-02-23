@@ -58,7 +58,6 @@ services:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
       - OPENCLAW_GATEWAY_PORT=18789
       - OPENCLAW_BRIDGE_PORT=18790
-      - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
       - PUID=${UID:-1000}
       - PGID=${GID:-1000}
       - LLM_TYPE=openai  # ou 'generic', 'local' dependendo da ferramenta
@@ -134,7 +133,7 @@ services:
     depends_on:
       openclaw:
         condition: service_healthy
-      llama:
+      tabbyapi:
         condition: service_healthy
 
   open_proxy_temp:        # Proxy ABERTO (sob demanda)
@@ -188,7 +187,7 @@ services:
       - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
     # --- healthcheck: verifica se a API do tabbyapi responde ----
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/health"]
+      test: ["CMD", "curl", "-f", "http://tabbyapi:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
