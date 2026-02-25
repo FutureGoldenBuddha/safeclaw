@@ -1,0 +1,104 @@
+# https://github.com/topoteretes/cognee-integrations/blob/main/integrations/openclaw/cognee-docker-compose.yaml
+# Minimal Docker Compose for Cognee (local-only)
+#
+# Usage:
+#   1. Export your LLM key: export LLM_API_KEY="your-openai-api-key" or set it in the .env file
+#   2. Run: docker compose -f ./integrations/openclaw/cognee-docker-compose.yaml up -d
+#   3. Verify: curl http://localhost:8000/health
+#   4. Configure OpenClaw with baseUrl: http://localhost:8000
+
+services:
+  cognee:
+    image: cognee/cognee:latest
+    container_name: cognee
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # LLM
+      - LLM_API_KEY=local
+      - LLM_PROVIDER=openai
+      - LLM_MODEL=openai/nanbeige
+      - LLM_ENDPOINT=http://llama:8080/v1
+      # Embeddings (llama.cpp também serve embeddings)
+      - EMBEDDING_API_KEY=local
+      - EMBEDDING_PROVIDER=openai
+      - EMBEDDING_MODEL=openai/text-embedding-3-small
+      - EMBEDDING_ENDPOINT=http://embeddings:8081/v1
+      # deactivate authentication for local use
+      - DISABLE_AUTHENTICATION=true
+      - ENABLE_BACKEND_ACCESS_CONTROL=false
+    volumes:
+      - cognee_data:/app/cognee/.cognee_system
+      - cognee_logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ai-network
+    depends_on:
+      - llama
+      - embeddings
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  llama:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: llama
+    runtime: nvidia
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./models:/models
+    environment:
+      npm_config_cache: /.npm-cache
+      npm_config_prefix: /.npm-global
+      LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
+      USER_HOME: /
+      MODEL_PATH: /models/Nanbeige4.1-3B.Q4_K_M.gguf
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+      LLM_ENDPOINT: http://llamacpp:8080/v1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      -m /models/Nanbeige4.1-3B.Q4_K_M.gguf
+      -ngl 99
+      --ctx-size 16384
+      --host 0.0.0.0
+      --port 8080
+    networks:
+      - ai-network
+
+  embeddings:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: embeddings
+    ports:
+      - "127.0.0.1:8081:8081"
+    volumes:
+      - ./models:/models
+    command: >
+      -m /models/nomic-embed-text-v2-moe-Q4_K_M.gguf
+      --host 0.0.0.0
+      --port 8081
+      --embeddings
+      --ctx-size 2048
+      -ngl 0
+    networks:
+      - ai-network
+
+networks:
+  ai-network:
+    driver: bridge            
+
+volumes:
+  cognee_data:
+    driver: local
+  cognee_logs:
+    driver: local

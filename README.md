@@ -39,11 +39,11 @@ ollama -- xx t/s
 
 llamacpp vulkan << t/s
 
-llamacpp cuda 60 t/s
+llamacpp cuda 60 t/s IT'S MY CHOICE, FOR NOW
 
 tabbyApi cuda 68 t/s, but no automatic function call support (?, at least for nanbeige4.1-3B...), and need for a different API key at every setup
 
-sglang, and vLLM,
+vLLM not fully tested, 8GB RAM is not enough because it pre-allocates a lot of VRAM for KV cache.
 
 ---
 
