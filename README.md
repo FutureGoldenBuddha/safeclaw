@@ -37,11 +37,13 @@ token speed comparison between local LLM providers with my specs:
 
 ollama -- xx t/s
 
-llama vulkan -- << t/s
+llamacpp vulkan << t/s
 
-llama cuda -- 60 t/s
+llamacpp cuda 60 t/s
 
-tabbyApi -- xx t/s
+tabbyApi cuda 68 t/s, but no automatic function call support (?, at least for nanbeige4.1-3B...), and need for a different API key at every setup
+
+sglang, and vLLM,
 
 ---
 
@@ -100,7 +102,7 @@ Think of maintenance-on as opening the hatch for a quick supply run and maintena
 
 #### Run post-start setup (if you don't see de openclaw_install folder and its contents)
 
-Run the OpenClaw post-start script from inside the container:
+Run the OpenClaw post-start script from inside the devcontainer in vscode:
 
 ```bash
 bash .devcontainer/containers/openclaw/debian/post-start.sh
@@ -114,7 +116,7 @@ From the `openclaw_install` directory inside the container:
 
 ```bash
 pnpm openclaw onboard
-pnpm openclaw models set llama/Ministral-3-3B-Instruct-2512-Q8_0
+pnpm openclaw models set tabbyapi/Nanbeige4.1-3B-EXL2-8.0bpw
 pnpm openclaw models list
 pnpm openclaw gateway --bind loopback --port 18789 --allow-unconfigured --token gateway-token
 ```

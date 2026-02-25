@@ -4,7 +4,7 @@
   },
   "models": {
     "providers": {
-      "llama": {
+      "tabbyapi": {
         "baseUrl": "http://tabbyapi:5000/v1",
         "apiKey": "${TABBY_API_KEY}",
         "api": "openai-completions",

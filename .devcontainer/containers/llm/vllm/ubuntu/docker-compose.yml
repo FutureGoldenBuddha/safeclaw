@@ -1,0 +1,62 @@
+# =============================================================================
+# vLLM — FP8 · NVIDIA CUDA · OpenAI-compatible API · Local model mount
+# =============================================================================
+# Requirements:
+#   - NVIDIA GPU with Ada Lovelace (RTX 4000 series) or Hopper (H100) for full
+#     W8A8 FP8. Ampere (RTX 3000) runs FP8 as weight-only W8A16 via Marlin.
+#   - NVIDIA Container Toolkit installed on the host
+#   - Your FP8 model already downloaded into ./models/<model-folder>
+#
+# Usage:
+#   1. Copy your model into ./models/  (e.g. ./models/Qwen2.5-7B-Instruct-FP8)
+#   2. Set MODEL_NAME in the .env file or export it in your shell
+#   3. docker compose up -d
+#   4. API available at http://localhost:8000/v1
+# =============================================================================
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
+    runtime: nvidia
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./models:/models
+      - /usr/lib/x86_64-linux-gnu/libcuda.so.580.119.02:/usr/local/cuda/compat/libcuda.so.580.119.02:ro
+      - /usr/lib/x86_64-linux-gnu/libcuda.so.1:/usr/local/cuda/compat/libcuda.so.1:ro
+      - /usr/lib/x86_64-linux-gnu/libcuda.so:/usr/local/cuda/compat/libcuda.so:ro
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - LD_LIBRARY_PATH=/usr/local/cuda/compat:/usr/local/cuda/lib64
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: --model /models/Nanbeige4.1-3B-FP8-Dynamic
+
+    # ── Health check ──────────────────────────────────────────────────────────
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s                      # vLLM takes time to load the model on first start
+
+    restart: unless-stopped
+
+# =============================================================================
+# .env file — create this next to docker-compose.yml
+# =============================================================================
+# MODEL_NAME=Qwen2.5-7B-Instruct-FP8          # folder name inside ./models/
+# SERVED_MODEL_NAME=local-model               # name exposed in the API
+# MAX_MODEL_LEN=100000                        # max context length in tokens (256K)
+# MAX_NUM_SEQS=256                            # max concurrent sequences
+# GPU_MEM_UTIL=0.90                           # fraction of VRAM to use (0.0–1.0)
+# TENSOR_PARALLEL=1                           # number of GPUs for tensor parallelism
+# HF_TOKEN=                                   # HuggingFace token (only if model is gated)

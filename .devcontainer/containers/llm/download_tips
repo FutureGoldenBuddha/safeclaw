@@ -1,0 +1,62 @@
+To download a specific branch from Hugging Face using **Git LFS**, you need to treat the branch name (the `6hb-4.0bpw` part) as a Git branch flag.
+
+Since you are on **Pop!_OS**, here is the most efficient way to do it.
+
+---
+
+### 1. Preparation: Install & Initialize LFS
+
+First, ensure Git LFS is actually installed and active on your system:
+
+```bash
+sudo apt update && sudo apt install git-lfs -y
+git lfs install
+
+```
+
+### 2. The Download Command
+
+To download only that specific branch without pulling the entire history of the main branch, use the `-b` (branch) and `--single-branch` flags.
+
+examples (check the branch on the top-left area)
+
+```bash
+git clone -b 6hb-4.0bpw --single-branch https://huggingface.co/TheMelonGod/Dolphin3.0-Qwen2.5-0.5B-exl2
+
+git clone -b 6.0bpw --single-branch https://huggingface.co/megabytes/Nanbeige4.1-3B-heretic-exl2
+
+```
+
+---
+
+### 3. Why this works (First Principles)
+
+When you use Git LFS on Hugging Face:
+
+* **The Pointer:** Git downloads a tiny text file (the "pointer") that contains the hash of the large model file.
+* **The Hook:** Git LFS sees that pointer and automatically triggers a download of the actual `.safetensors` or `.bin` files from the Hugging Face LFS storage.
+* **The Branch:** Using `--single-branch` prevents Git from trying to "see" other versions of the model, which saves disk space and metadata processing time.
+
+---
+
+### 4. The "Pro" Alternative: `huggingface-cli`
+
+Git LFS can sometimes be finicky (it doesn't handle interrupted downloads very well). If you find it's too slow or failing, the official **Hugging Face CLI** is much more robust:
+
+```bash
+# Install the CLI
+pip install huggingface_hub
+
+# Download only that specific branch/revision to a folder
+huggingface-cli download \
+  TheMelonGod/Dolphin3.0-Qwen2.5-0.5B-exl2 \
+  --revision 6hb-4.0bpw \
+  --local-dir ./Dolphin-EXL2
+
+```
+
+> **Note:** Since this is an **EXL2** model, once it finishes downloading, make sure you move the entire folder into the volume you mapped for **TabbyAPI** (e.g., `/home/projeto/modelos`).
+
+### Next Step
+
+Would you like me to show you how to verify that the download actually pulled the large weights and not just the small 1KB pointer files?
