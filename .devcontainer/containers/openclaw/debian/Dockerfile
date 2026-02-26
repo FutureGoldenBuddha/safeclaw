@@ -31,8 +31,8 @@ RUN if getent passwd 1000 > /dev/null; then \
 RUN mkdir -p /temp /workspace/.openclaw_install /workspace/my_projects \
     && chown -R 1000:1000 /workspace
 
-# Cpy README.md
-COPY --chown=1000:1000 ../README.md /workspace
+# Cpy README.md here >> openclaw >> containers >> .devcontainer >> root
+COPY --chown=1000:1000 ../../../../README.md /workspace
 
 
 # Copy entrypoint script to a temp folder
