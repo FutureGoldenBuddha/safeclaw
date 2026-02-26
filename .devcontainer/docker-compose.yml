@@ -228,6 +228,6 @@ volumes:
   cognee_logs:
     driver: local
   postgres_data:
-    driver: loca
+    driver: local
   my_projects:
-    driver: locall
+    driver: local
