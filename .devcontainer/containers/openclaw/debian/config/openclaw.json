@@ -4,7 +4,7 @@
   },
   "models": {
     "providers": {
-      "tabbyapi": {
+      "llama": {
         "baseUrl": "http://llama:8080/v1",
         "apiKey": "${OPENAI_API_KEY}",
         "api": "openai-completions",
@@ -36,6 +36,20 @@
       },
       "models": {
         "llama/gemma-3-4b-it-q4_0": {}
+      },
+      "memorySearch": {
+        "enabled": true,
+        "sources": ["memory", "sessions"],
+        "query": {
+          "hybrid": {
+            "enabled": true,
+            "vectorWeight": 0.7,
+            "textWeight": 0.3
+          }
+        },    
+        "experimental": {
+            "sessionMemory": true
+        }
       }
     }
   },
@@ -55,19 +69,5 @@
     "mode": "cache-ttl",
     "ttl": "6h",
     "keepLastAssistants": 3
-  },
-  "memorySearch": {
-    "enabled": true,
-    "sources": ["memory", "sessions"],
-    "query": {
-      "hybrid": {
-        "enabled": true,
-        "vectorWeight": 0.7,
-        "textWeight": 0.3
-      }
-    },    
-    "experimental": {
-        "sessionMemory": true
-    }
   }
 }

@@ -85,7 +85,7 @@ fi
 echo "⚙️ Copying initial OpenClaw Config file..."
 
 mkdir -p /workspace/.openclaw_data/.openclaw
-cp /temp/openclaw.json /workspace/.openclaw_data/.openclaw
+cp /temp/openclaw.json /workspace/.openclaw_data/
 
 echo "✅ Copied openclaw.json to /workspace/.openclaw_data/.openclaw successfully!"
 
