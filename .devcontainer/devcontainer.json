@@ -24,7 +24,7 @@
   // IMPORTANT: do not update remote user UID, for containers finegrained control
   "updateRemoteUserUID": false, 
   // ⬇️ here lies the openclaw installation script ⬇️
-  "postCreateCommand": "bash /workspace/.openclaw-install/post-compose.sh",  
+  "postCreateCommand": "bash /temp/post-compose.sh",  
   // script that executes after posCreateCommand
   "postStartCommand": "echo 'Container OpenClaw is ready!'"
 }

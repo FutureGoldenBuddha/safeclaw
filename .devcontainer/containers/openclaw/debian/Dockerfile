@@ -28,12 +28,20 @@ RUN if getent passwd 1000 > /dev/null; then \
     fi
 
 # Create system and project directories
-RUN mkdir -p /home/install /workspace/.openclaw_install /workspace/my_projects \
+RUN mkdir -p /temp /workspace/.openclaw_install /workspace/my_projects \
     && chown -R 1000:1000 /workspace
+
+# Cpy README.md
+COPY --chown=1000:1000 ../README.md /workspace
+
 
 # Copy entrypoint script to a temp folder
 COPY --chown=1000:1000 entrypoint.sh /temp/entrypoint.sh
 RUN chmod +x /temp/entrypoint.sh
+
+# Copy post-compose script to a temp folder
+COPY --chown=1000:1000 post-compose.sh /temp/post-compose.sh
+RUN chmod +x /temp/post-compose.sh
 
 # Copy configuration file to a temp folder, and to the correct place @ post-compose
 COPY --chown=1000:1000 ./config/openclaw.json /temp/openclaw.json

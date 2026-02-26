@@ -5,13 +5,13 @@
   "models": {
     "providers": {
       "tabbyapi": {
-        "baseUrl": "http://tabbyapi:5000/v1",
-        "apiKey": "${TABBY_API_KEY}",
+        "baseUrl": "http://llama:8080/v1",
+        "apiKey": "${OPENAI_API_KEY}",
         "api": "openai-completions",
         "models": [
           {
-            "id": "Nanbeige4.1-3B-EXL2-8.0bpw",
-            "name": "nanbeige 3B",
+            "id": "gemma-3-4b-it-q4_0.gguf",
+            "name": "gemma 4B",
             "reasoning": false,
             "input": [
               "text"
@@ -22,7 +22,7 @@
               "cacheRead": 0,
               "cacheWrite": 0
             },
-            "contextWindow": 50000,
+            "contextWindow": 33000,
             "maxTokens": 2048
           }
         ]
@@ -32,10 +32,10 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "tabbyapi/Nanbeige4.1-3B-EXL2-8.0bpw"
+        "primary": "llama/gemma-3-4b-it-q4_0"
       },
       "models": {
-        "tabbyapi/Nanbeige4.1-3B-EXL2-8.0bpw": {}
+        "llama/gemma-3-4b-it-q4_0": {}
       }
     }
   },
