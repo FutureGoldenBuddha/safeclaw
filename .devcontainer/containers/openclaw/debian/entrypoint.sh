@@ -1,40 +1,40 @@
 #!/bin/sh
 set -e
 
-echo "debug user atual"
+echo "debug current user"
 
 echo $(whoami)
 
 echo $(id)
 
-echo "permissoes da pasta /home/projeto, onde os diretorios vao ser criados.."
+echo "permissions of the /workspace folder, where directories will be created..."
 
-ls -ld /home/projeto
+ls -ld /workspace
 
-echo "A criar diretórios de instalação e projetos..."
+echo "Creating installation and projects directories..."
 
-# Usa o ID que passamos por variável, ou 1000 como padrão
-echo "user do host"
+# Uses the ID passed via variable, or defaults to 1000
+echo "host user"
 USER_ID=${PUID:-1000}
 GROUP_ID=${PGID:-1000}
 echo $(USER_ID)
 echo $(GROUP_ID)
 
-# corrige permissoes do workspace pq pelos vistos o docker-compose.yml fode tudo
-chown -R $USER_ID:$GROUP_ID /home/projeto
+# Fixes workspace permissions because apparently docker-compose.yml messes everything up
+chown -R $USER_ID:$GROUP_ID /workspace
 
-# Cria os diretórios caso não existam
-mkdir -p /home/projeto/openclaw_install /home/projeto/projetos
+# Creates the directories if they don't exist
+mkdir -p /workspace/.openclaw_install /workspace/my_projects
 
-# Ajusta as permissões para o utilizador (UID 1000)
-# Nota: Se o volume for montado como root, isto garante que o app user consegue escrever
-chown -R $USER_ID:$GROUP_ID /home/projeto/openclaw_install /home/projeto/projetos
+# Adjusts permissions for the user (UID 1000)
+# Note: If the volume is mounted as root, this ensures the app user can write
+chown -R $USER_ID:$GROUP_ID /workspace/.openclaw_install /workspace/my_projects
 
-echo "Diretórios prontos. A iniciar aplicação..."
+echo "Directories ready. Starting application..."
 
-# 3. EXECUTA O COMANDO COMO USER 1000 (Usando o comando 'su' ou 'runuser')
-echo "Permissões ajustadas. A baixar para utilizador nao root..."
+# 3. EXECUTES THE COMMAND AS USER 1000 (Using 'su' or 'runuser')
+echo "Permissions adjusted. Dropping to non-root user..."
 exec setpriv --reuid=$USER_ID --regid=$GROUP_ID --init-groups "$@"
 
-# Executa o comando principal do Dockerfile (o CMD)
+# Executes the main command from the Dockerfile (the CMD)
 # exec "$@"
