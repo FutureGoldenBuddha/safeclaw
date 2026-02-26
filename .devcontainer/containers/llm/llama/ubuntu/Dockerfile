@@ -1,14 +1,14 @@
-# 1. Usamos a imagem oficial do llama.cpp já compilada para CUDA
-# Essa imagem é baseada em Ubuntu e já vem com as bibliotecas necessárias
+# 1. Use the official llama.cpp image pre‑compiled for CUDA
+# This image is based on Ubuntu and includes all necessary libraries.
 FROM ghcr.io/ggml-org/llama.cpp:server-cuda
 
-# Voltamos para root apenas para instalar utilitários administrativos
+# Switch back to root to install administrative utilities
 USER root
 
-# Evita prompts interativos
+# Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 2. Instalamos apenas o essencial: git para seus hooks e gosu para gestão de usuários
+# 2. Install only essential tools: git (for hooks) and gosu (for user management)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
@@ -16,15 +16,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gosu \
     && rm -rf /var/lib/apt/lists/*
 
-# No CUDA, não precisamos mapear o grupo 'render' (992) manualmente 
-# como fazíamos para o Intel/Vulkan. O driver NVIDIA cuida disso.
+# With CUDA, we do not need to manually map the 'render' group (992)
+# as we did for Intel/Vulkan. The NVIDIA driver handles this.
 
-# Criamos o usuário ubuntu se ele não existir (na imagem oficial geralmente já existe)
-# mas garantimos que ele tenha permissões para o que precisamos
+# Ensure the 'ubuntu' user exists (UID 1000); the official image usually has it.
 RUN id -u ubuntu >/dev/null 2>&1 || useradd -m -u 1000 ubuntu
 
-# Expõe a porta do servidor
+# Copy the custom entrypoint script into the container
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Expose the server port
 EXPOSE 8080
 
-# (Opcional) Verificação de saúde: nvidia-smi para ver se as GPUs estão lá
-CMD ["nvidia-smi"]
+# Set the custom script as the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

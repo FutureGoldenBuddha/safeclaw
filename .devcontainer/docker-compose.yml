@@ -45,6 +45,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+
   # -----------------------------------------------------------
   # FORWARD PROXY for domains whitelisting
   # -----------------------------------------------------------
@@ -75,6 +76,7 @@ services:
         condition: service_healthy
       llama:
         condition: service_healthy
+
   # -----------------------------------------------------------
   # FORWARD PROXY for open internet access (for maintenance)
   # -----------------------------------------------------------
@@ -86,6 +88,7 @@ services:
     networks:
       - openclaw_internal_maintenance
       - openclaw_egress
+
   # -----------------------------------------------------------
   # LLAMACPP — local LLM server
   # note: put the models in the /models folder before setup
@@ -104,73 +107,35 @@ services:
       # defines folder with permissions pto install npm
       npm_config_cache: /workspace/.npm-cache
       npm_config_prefix: /workspace/.npm-global
-      LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
-      USER_HOME: /workspace
+      # important for loading shared libraries
+      LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH
       MODEL_PATH: /models/gemma-3-4b-it-q4_0.gguf
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: all,compute,graphics,video,utility
     ports:
       - "8080:8080"
-    # monta o workspace no container
     volumes:
       - ./models:/models:ro  # read only
     deploy:
       resources:
+        limits:
+          memory: 4G
         reservations:
+          memory: 2G
           devices:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    # runtime: nvidia  # em vez do deploy.resources
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - >
-        echo "=== DEBUG INFO ===" &&
-        echo "HOME: $$HOME" &&
-        echo "PWD: $$(pwd)" &&
-        echo "USER: $$(whoami)" &&
-        echo "UID: $$(id -u)" &&
-        echo "MODEL_PATH: $$MODEL_PATH" &&
-        echo "" &&
-        echo "=== LISTANDO /models ===" &&
-        ls -la /models/ &&
-        echo "" &&
-        echo "=== VERIFICANDO SE MODELO EXISTE ===" &&
-        if [ -f "$$MODEL_PATH" ]; then
-          echo "✓ Modelo encontrado: $$MODEL_PATH";
-          ls -lh "$$MODEL_PATH";
-        else
-          echo "✗ Modelo NÃO encontrado: $$MODEL_PATH";
-        fi &&
-        echo "" &&
-        echo "=== testa comunicacao com dev/dri ===" &&
-        echo "test -w /dev/dri/renderD128 && echo 'Acesso OK' || echo 'Sem acesso'" &&
-        echo "=== Confirma permissões no dev/dri ===" &&
-        ls -la /dev/dri/ &&
-        echo "" &&
-        echo "=== INICIANDO LLAMA-SERVER ===" &&
-        echo "=== SWITCHING TO USER 1000 ===" &&
-        exec gosu 1000:1000 /app/llama-server
-        --host 0.0.0.0
-        --port 8080
-        -m "$$MODEL_PATH"
-        -ngl -1
-        --ctx-size 32000
-    # --device Vulkan0,Vulkan1
-    # -ts 50,50
     restart: unless-stopped
     networks:
-      - openclaw_internal_secure     # Rede do proxy seguro
-      - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
-    # --- healthcheck: verifica se a API do llama responde ----
+      - openclaw_internal_secure   
+      - openclaw_internal_maintenance 
     healthcheck:
-      # --vê se o ollama existe...
       test: ["CMD-SHELL", "pgrep llama || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 20s # Increased to give the model/GPU time to initialize
-
 
   # -----------------------------------------------------------
   # main memory - cognee
