@@ -1,6 +1,7 @@
 #!/bin/bash
-set -e
+set -e  # Stop if any command fails
 
+# Automatically find the folder containing docker-compose.yml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
@@ -8,11 +9,11 @@ export PROXY_MODE=RESTRICTED
 export HTTP_PROXY=http://openclaw_egress_proxy:3128
 export HTTPS_PROXY=http://openclaw_egress_proxy:3128
 
-echo "🔒 RESTAURANDO MODO SEGURO"
-echo "1. Parando o container do proxy aberto..."
-docker-compose --profile maintenance down open_proxy_temp
+echo "🔒 RESTORING SECURE MODE"
+echo "1. Stopping the open proxy container..."
+docker-compose down open_proxy
 
-echo "2. Reconfigurando o agente para usar o proxy restritivo..."
-docker-compose exec -e PROXY_MODE -e HTTP_PROXY -e HTTPS_PROXY openclaw /bin/sh -c 'echo "Variáveis atualizadas. Agora em modo SEGURO (restritivo)."'
+echo "2. Reconfiguring the agent to use the restrictive proxy..."
+docker-compose exec -e PROXY_MODE -e HTTP_PROXY -e HTTPS_PROXY openclaw /bin/sh -c 'echo "Variables updated. Now in SECURE (restrictive) mode."'
 
-echo "✅ Pronto! O proxy aberto foi parado e o agente voltou ao proxy restritivo."
+echo "✅ Done! The open proxy has been stopped and the agent is back to using the restrictive proxy."

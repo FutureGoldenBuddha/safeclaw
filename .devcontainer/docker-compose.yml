@@ -8,44 +8,18 @@ services:
   # Main service — OpenClaw Agent
   # -----------------------------------------------------------
   openclaw:
+    container_name: openclaw
+    user: "1000:1000"
+    build: ./containers/openclaw/debian
     volumes:
       - .openclaw-install:/workspace/.openclaw-install:ro  # read only 
       - .openclaw-data:/workspace/.openclaw-data:rw  # read write 
       - projects:/workspace/projects:rw  # read write 
-    build: ./containers/openclaw/debian  # Debian-based
-    container_name: openclaw
-    # --- utilizador não-root -------------------------------------------
-    user: "1000:1000"
-    environment:
-      - NODE_ENV=development
-      # openclaw setup
-      - OPENCLAW_HOME=/home/.openclaw-data
-      - OPENCLAW_CONFIG=/home/projeto/openclaw_data/config/openclaw.json
-      - OPENCLAW_LOGS=/home/projeto/openclaw_data/logs
-      - OPENCLAW_WORKSPACE=/home/projeto/projetos
-      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      - OPENCLAW_GATEWAY_PORT=18789
-      - OPENCLAW_BRIDGE_PORT=18790
-      - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
-      - PUID=${UID:-1000}
-      - PGID=${GID:-1000}
-      - LLM_TYPE=openai  # ou 'generic', 'local' dependendo da ferramenta
-      - OPENAI_API_BASE=http://llama:8080/v1
-      - OPENAI_BASE_URL=http://llama:8080/v1
-      - OPENAI_API_KEY=llamacpp-local
-      - MODEL_NAME=Llama-3.2-3B-Instruct-Q8_0.gguf # Opcional, mas ajuda
-      - PROXY_MODE=OPEN  # Variável de controle: RESTRICTED ou OPEN
-      # ⭐⭐ VARIÁVEIS - herdam do shell/scripts
-      - HTTP_PROXY=http://open_proxy_temp:3128
-      - HTTPS_PROXY=http://open_proxy_temp:3128
-      # Exclui serviços internos do proxy
-      - NO_PROXY=localhost,127.0.0.1,llama
-      - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
-      - MCP_SERVER_URL=http://obsidian-mcp:${MCP_PORT:-3102}/mcp
+    env_file:
+      - ./containers/openclaw/debian/openclaw.env
     ports:
       - "18789:18789"  # Gateway
       - "18790:18790"  # Bridge
-    # --- limites de recursos -------------------------------------------
     deploy:
       resources:
         limits:
@@ -54,41 +28,37 @@ services:
         reservations:
           cpus: "0.25"
           memory: 512M
+    # important to let devcontainer access this container
+    # ...use when you need to work on a project outside the Docker container, equivalent to -i
     stdin_open: true
+    # ...use to be able to “keep the container running”, equivalent to -t (see docker docs)
     tty: true
     restart: unless-stopped
-    # --- rede: só a rede interna isolada --------------------------------
     networks:
-      - openclaw_internal_secure     # Rede do proxy seguro
-      - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
+      - openclaw_internal_secure     # whitelisting internet acces
+      - openclaw_internal_maintenance # open internet access (used when setting up openclaw)
     depends_on:
-      - obsidian-mcp
-    # --- healthcheck ---------------------------------------------------
+      - llama
     healthcheck:
       test: ["CMD", "node", "--version"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 15s
-
   # -----------------------------------------------------------
-  # PROXY DE SAÍDA — allowlist de domínios
-  # Bloqueia qualquer ligação para fora que não esteja
-  # explicitamente autorizada.
+  # FORWARD PROXY for domains whitelisting
   # -----------------------------------------------------------
   openclaw_egress_proxy: # Proxy SEGURO (sempre ativo)
-    build: ./containers/squid/alpine
-    container_name: proxy_seguro
-    # volumes:
-    #   - ./squid/log:/var/log/squid:rw
-    # user: node
+    build:
+      context: ./containers/squid/alpine
+      dockerfile: Dockerfile.safe
+    container_name: safe_proxy
     ports:
       - "3128:3128"
     restart: always
     networks:
-      - openclaw_internal_secure   # recebe pedidos do agente
-      - openclaw_egress     # tem saída para o exterior
-    # --- limites de recursos (proxy leve) ------------------------------
+      - openclaw_internal_secure
+      - openclaw_egress
     deploy:
       resources:
         limits:
@@ -99,28 +69,23 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
+    # do not restrict internet access while setting up
     depends_on:
       openclaw:
         condition: service_healthy
       llama:
         condition: service_healthy
-
-  open_proxy_temp:        # Proxy ABERTO (sob demanda)
+  # -----------------------------------------------------------
+  # FORWARD PROXY for open internet access
+  # -----------------------------------------------------------
+  open_proxy_temp:
     build:
-      context: ./containers/squid/alpine                     # A pasta
-      dockerfile: DockerfileTemp     # Nome do seu Dockerfile personalizado
-    container_name: proxy_manutencao
-    # user: node
-    profiles: ["maintenance"]  # ⭐ MAGIA: Só inicia quando explicitamente pedido    
-    # volumes:
-    #   - ./squid/log:/var/log/squid:rw
+      context: ./containers/squid/alpine
+      dockerfile: Dockerfile.open
+    container_name: open_proxy
     networks:
-      openclaw_internal_maintenance:
-        aliases:
-          - open_proxy_temp
-      openclaw_egress:
-        aliases:
-          - open_proxy_temp
+      - openclaw_internal_maintenance
+      - openclaw_egress
 
   # -----------------------------------------------------------
   # OLLAMA — servidor de modelos LLM local
@@ -138,26 +103,18 @@ services:
       - "label=disable"
     # define pasta com permissoes para instalar npm no modo rootless
     environment:
-      npm_config_cache: /home/projeto/.npm-cache
-      npm_config_prefix: /home/projeto/.npm-global
+      npm_config_cache: /workspace/.npm-cache
+      npm_config_prefix: /workspace/.npm-global
       LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
-      USER_HOME: /home/projeto
-      MODEL_PATH: /home/projeto/models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
+      USER_HOME: /workspace
+      MODEL_PATH: /models/gemma-3-4b-it-q4_0.gguf
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: all,compute,graphics,video,utility
-      VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/intel_icd.json:/etc/vulkan/icd.d/nvidia_icd.json
-      VK_LOADER_DEBUG: all
     ports:
       - "8080:8080"
     # monta o workspace no container
     volumes:
-      - type: bind
-        source: ..  # Pasta pai (raiz do projeto) >> openclaw >> containers >> .devcontainer >> raiz
-        target: /home/projeto
-    group_add:
-      - "992" # render
-    devices:
-      - /dev/dri:/dev/dri  # Passa a Intel GPU para o contentor
+      - ./models:/models:ro  # read only
     deploy:
       resources:
         reservations:
@@ -176,14 +133,8 @@ services:
         echo "UID: $$(id -u)" &&
         echo "MODEL_PATH: $$MODEL_PATH" &&
         echo "" &&
-        echo "=== LISTANDO /home ===" &&
-        ls -la /home/ &&
-        echo "" &&
-        echo "=== LISTANDO /home/projeto ===" &&
-        ls -la /home/projeto/ &&
-        echo "" &&
-        echo "=== LISTANDO /home/projeto/models ===" &&
-        ls -la /home/projeto/models/ &&
+        echo "=== LISTANDO /models ===" &&
+        ls -la /models/ &&
         echo "" &&
         echo "=== VERIFICANDO SE MODELO EXISTE ===" &&
         if [ -f "$$MODEL_PATH" ]; then
