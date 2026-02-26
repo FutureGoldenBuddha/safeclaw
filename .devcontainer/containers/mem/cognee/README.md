@@ -1,7 +1,6 @@
-Your api key is NOT set on docker-compose.
 Go to http://localhost:8000/docs for an extra help
-put some string "<authorization_string>" on both fields on the Authorize button area, to avoid unauthorized errors...
-If you want to avoid stress induced authentication problems leave the tag DISABLE_AUTHENTICATION in docker-compose...
+
+If you want to avoid stress induced authentication problems leave the tag REQUIRE_AUTHENTICATION=false in docker-compose...
 
 After install first create a new user with:
 (Note: if the token expires just repeat the steps from here)
@@ -45,8 +44,36 @@ add some data to the dataset:
 echo "the slow fox grabbed some coffee with the quick turtle" > /tmp/test.txt
 ```
 
+see the docs to use the api... this ingests the data
 ```
-url http://localhost:8000/api/v1/add   -H "Authorization: Bearer <user_access_token>"    -F "datasetName=test"  -F "data=@/tmp/test.txt"
+curl -X 'POST' \
+  'http://localhost:8000/api/v1/add' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'data=@test.txt;type=text/plain' \
+  -F 'datasetName=test' \
+  -F 'datasetId=' \
+  -F 'node_set=nomde_do_node'  # this field is critical, or else it does not generate a node!!!
+```
+
+Now before viewing the graph use the cognify section... this builds the graph
+using baml mode because instructor requires parallelism and llama.cpp is not keen on it...
+
+```
+curl -X 'POST' \
+  'http://localhost:8000/api/v1/cognify' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "datasets": [
+    "test"
+  ],
+  "datasetIds": [],
+  "runInBackground": false,
+  "customPrompt": "",
+  "ontologyKey": [],
+  "chunksPerBatch": 10
+}'
 ```
 
 
@@ -55,6 +82,8 @@ after that use the dataset_id obtained above when creating the dataset:
 ```
 curl http://localhost:8000/v1/datasets/{dataset_id}/graph/visualization > graph.html
 ```
-  
-  
-  
+
+if you go to visualize section on http://localhost:8000/docs you get the corresponding code, like this for example:
+      
+curl -X 'GET' \
+  'http://localhost:8000/api/v1/visualize?dataset_id=40dbcd5b-8196-595f-a325-bd3f81c8ae38'

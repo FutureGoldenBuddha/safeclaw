@@ -9,23 +9,51 @@
 
 services:
   cognee:
-    image: cognee/cognee:latest
+    build:
+      context: .
     container_name: cognee
     ports:
       - "127.0.0.1:8000:8000"
     environment:
+      # source: https://github.com/topoteretes/cognee/blob/main/.env.template
       # LLM
       - LLM_API_KEY=local
       - LLM_PROVIDER=openai
-      - LLM_MODEL=openai/nanbeige
+      - LLM_MODEL=openai/gemma
       - LLM_ENDPOINT=http://llama:8080/v1
+      # Instructor mode - critical for llama.cpp which does not support parallelism
+      # - LLM_INSTRUCTOR_MODE=json_mode
+      - LLM_INSTRUCTOR_MODE=baml
+      - STRUCTURED_OUTPUT_FRAMEWORK=baml
+      - BAML_LLM_PROVIDER=openai
+      - BAML_LLM_MODEL=openai/gemma
+      - BAML_LLM_ENDPOINT=http://llama:8080/v1
+      - BAML_LLM_API_KEY=local
+      - BAML_LLM_API_VERSION=""
+      
       # Embeddings (llama.cpp também serve embeddings)
       - EMBEDDING_API_KEY=local
       - EMBEDDING_PROVIDER=openai
       - EMBEDDING_MODEL=openai/text-embedding-3-small
       - EMBEDDING_ENDPOINT=http://embeddings:8081/v1
+      - EMBEDDING_DIMENSIONS=768
+      - EMBEDDING_MAX_TOKENS=8192
+
+      # NOVAS CONFIGURAÇÕES PARA BANCO DE DADOS
+      # Banco relacional (obrigatório para pgvector)
+      - DB_PROVIDER=postgres
+      - DB_HOST=http://cognee_postgres:5432
+      - DB_PORT=5432
+      - DB_NAME=cognee_db
+      - DB_USERNAME=cognee_user
+      - DB_PASSWORD=cognee_password
+      
+      # Banco vetorial usando pgvector
+      - VECTOR_DB_PROVIDER=pgvector
+      # NÃO precisa definir VECTOR_DB_URL, pois reusa a conexão do PostgreSQL
+
       # deactivate authentication for local use
-      - DISABLE_AUTHENTICATION=true
+      - REQUIRE_AUTHENTICATION=false
       - ENABLE_BACKEND_ACCESS_CONTROL=false
     volumes:
       - cognee_data:/app/cognee/.cognee_system
@@ -36,12 +64,34 @@ services:
     depends_on:
       - llama
       - embeddings
+      - postgres   # adicionar dependência
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # Serviço PostgreSQL com pgvector
+  postgres:
+    image: pgvector/pgvector:pg16  # imagem oficial com pgvector pré-instalado
+    container_name: cognee_postgres
+    environment:
+      - POSTGRES_DB=cognee_db
+      - POSTGRES_USER=cognee_user
+      - POSTGRES_PASSWORD=cognee_password
+    ports:
+      - "127.0.0.1:5432:5432"  # expõe a porta se quiser conectar externamente (opcional)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cognee_user -d cognee_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   llama:
     image: ghcr.io/ggml-org/llama.cpp:server-cuda
@@ -56,10 +106,10 @@ services:
       npm_config_prefix: /.npm-global
       LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
       USER_HOME: /
-      MODEL_PATH: /models/Nanbeige4.1-3B.Q4_K_M.gguf
+      MODEL_PATH: /models/gemma-3-4b-it-q4_0.gguf
       NVIDIA_DRIVER_CAPABILITIES: all
       NVIDIA_VISIBLE_DEVICES: all
-      LLM_ENDPOINT: http://llamacpp:8080/v1
+      LLM_ENDPOINT: http://llama:8080/v1
     deploy:
       resources:
         reservations:
@@ -68,9 +118,9 @@ services:
               count: all
               capabilities: [gpu]
     command: >
-      -m /models/Nanbeige4.1-3B.Q4_K_M.gguf
+      -m /models/gemma-3-4b-it-q4_0.gguf
       -ngl 99
-      --ctx-size 16384
+      --ctx-size 100000
       --host 0.0.0.0
       --port 8080
     networks:
@@ -84,11 +134,13 @@ services:
     volumes:
       - ./models:/models
     command: >
-      -m /models/nomic-embed-text-v2-moe-Q4_K_M.gguf
+      -m /models/nomic-embed-text-v1.5.Q8_0.gguf
       --host 0.0.0.0
       --port 8081
       --embeddings
-      --ctx-size 2048
+      --ctx-size 8192 
+      --batch-size 2048
+      --ubatch-size 2048
       -ngl 0
     networks:
       - ai-network
