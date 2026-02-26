@@ -50,24 +50,24 @@
         "experimental": {
             "sessionMemory": true
         }
+      },
+      "compaction": {
+        "memoryFlush": {
+          "enabled": true,
+          "softThresholdTokens": 40000,
+          "prompt": "Distill this session to memory/YYYY-MM-DD.md. Focus on decisions, state changes, lessons, blockers. If nothing: NO_FLUSH",
+          "systemPrompt": "Extract only what is worth remembering. No fluff."
+        }
+      },
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "6h",
+        "keepLastAssistants": 3
       }
     }
   },
   "commands": {
     "native": "auto",
     "nativeSkills": "auto"
-  },
-  "compaction": {
-    "memoryFlush": {
-      "enabled": true,
-      "softThresholdTokens": 40000,
-      "prompt": "Distill this session to memory/YYYY-MM-DD.md. Focus on decisions, state changes, lessons, blockers. If nothing: NO_FLUSH",
-      "systemPrompt": "Extract only what is worth remembering. No fluff."
-    }
-  },
-  "contextPruning": {
-    "mode": "cache-ttl",
-    "ttl": "6h",
-    "keepLastAssistants": 3
   }
 }
