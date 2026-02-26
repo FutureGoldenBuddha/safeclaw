@@ -39,4 +39,4 @@ exec gosu 1000:1000 /app/llama-server \
     --port 8080 \
     -m "$MODEL_PATH" \
     -ngl -1 \
-    --ctx-size 32000
+    --ctx-size 70000

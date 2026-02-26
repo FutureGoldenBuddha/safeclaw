@@ -109,7 +109,7 @@ services:
       npm_config_prefix: /workspace/.npm-global
       # important for loading shared libraries
       LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH
-      MODEL_PATH: /models/Nanbeige4.1-3B.Q4_K_M.gguf
+      MODEL_PATH: /models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: all,compute,graphics,video,utility
     ports:
