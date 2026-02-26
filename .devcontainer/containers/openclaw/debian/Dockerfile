@@ -47,7 +47,7 @@ RUN chmod +x /temp/post-compose.sh
 COPY --chown=1000:1000 ./config/openclaw.json /temp/openclaw.json
 
 # Copy start_here.md
-COPY --chown=1000:1000 START_HERE.sh /workspace
+COPY --chown=1000:1000 START_HERE.md /workspace
 
 # Expose OpenClaw ports
 EXPOSE 18789 18790
