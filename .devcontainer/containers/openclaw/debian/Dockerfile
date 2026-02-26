@@ -33,7 +33,7 @@ RUN mkdir -p /home/install /workspace/.openclaw_install /workspace/my_projects \
 
 # Copy entrypoint script to a temp folder
 COPY --chown=1000:1000 entrypoint.sh /temp/entrypoint.sh
-RUN chmod +x /home/install/entrypoint.sh
+RUN chmod +x /temp/entrypoint.sh
 
 # Copy configuration file to a temp folder, and to the correct place @ post-compose
 COPY --chown=1000:1000 ./config/openclaw.json /temp/openclaw.json
@@ -42,7 +42,7 @@ COPY --chown=1000:1000 ./config/openclaw.json /temp/openclaw.json
 EXPOSE 18789 18790
 
 # Set the entrypoint script
-ENTRYPOINT ["/workspace/.openclaw_install/entrypoint.sh"]
+ENTRYPOINT ["/temp/entrypoint.sh"]
 
 # Default command (keeps container alive)
 CMD ["sleep", "infinity"]
