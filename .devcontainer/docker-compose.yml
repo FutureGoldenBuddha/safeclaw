@@ -142,7 +142,7 @@ services:
   # -----------------------------------------------------------
   embeddings:
     image: ghcr.io/ggml-org/llama.cpp:server
-    container_name: embeddings
+    container_name: cognee_embeddings
     ports:
       - "127.0.0.1:8081:8081"
     volumes:

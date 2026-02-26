@@ -32,7 +32,7 @@ RUN mkdir -p /home/install /workspace/.openclaw_install /workspace/my_projects \
     && chown -R 1000:1000 /workspace
 
 # Copy entrypoint script to the installation folder
-COPY --chown=1000:1000 entrypoint.sh /workspace/.openclaw_install/entrypoint.sh
+COPY --chown=1000:1000 ./entrypoint.sh /workspace/.openclaw_install/entrypoint.sh
 RUN chmod +x /workspace/.openclaw_install/entrypoint.sh
 
 # Copy configuration file
