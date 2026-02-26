@@ -1,13 +1,15 @@
 FROM node:22-bookworm-slim
 
-# Instalar dependências de sistema
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git openssh-client \
     sqlite3 \
     curl wget ca-certificates python3 make g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar pnpm globalmente
+# (create and) change to .openclaw directory
+
+# Install pnpm globally
 RUN npm install -g pnpm
 
 # Verificar se o grupo 1000 já existe e usar nome apropriado

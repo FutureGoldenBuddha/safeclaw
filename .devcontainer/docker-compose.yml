@@ -1,76 +1,45 @@
 # =============================================================
-# OpenClaw — docker-compose.yml (configuração endurecida)
+# SafeClaw — docker-compose.yml (safety best practices)
 # =============================================================
-# Aplica as seguintes medidas de segurança:
-#   • Execução como utilizador não-root (uid/gid 1000)
-#   • Sistema de ficheiros raiz somente leitura (read-only)
-#   • no-new-privileges (impede escalada de privilégios)
-#   • Todas as capabilities Linux removidas (cap-drop: ALL)
-#   • Limites de CPU e memória
-#   • Rede isolada com proxy de saída (allowlist de domínios)
-#   • Volumes mínimos e com permissões estritas
-#   • Healthcheck integrado
-# =============================================================
-# Name of the Compose project (used as prefix for container names)
-name: safeclaw
-# -------------------------------------------------------------
-# Volumes nomeados — espaço de trabalho dedicado ao agente.
-# Nunca monta o diretório home do host.
-# -------------------------------------------------------------
-    
+# Name of the Compose project
+name: safeclaw    
 services:
-
   # -----------------------------------------------------------
-  # main memory - obsidian
-  # -----------------------------------------------------------
-  # The MCP Server
-  obsidian-mcp:
-    build: ./containers/obsidian/debian  # Debian-based
-    container_name: obsidian-mcp
-    ports:
-      - "${MCP_PORT:-3102}:3101" # Exposes the MCP server to the host and other containers
-    volumes:
-      - "${VAULT_PATH:-./vault}:/vault"
-      # Ensure you have a ./hooks folder next to this file containing the 'pre-commit' script
-      - "./hooks:/app/hooks"
-    restart: unless-stopped
-
-  # -----------------------------------------------------------
-  # SERVIÇO PRINCIPAL — OpenClaw Agent
+  # Main service — OpenClaw Agent
   # -----------------------------------------------------------
   openclaw:
-    # monta o workspace no container
     volumes:
-      - type: bind
-        source: ..  # Pasta pai (raiz do projeto)
-        target: /home/projeto
-      - "${VAULT_PATH:-./vault}:/vault" # obsidian
+      - .openclaw-install:/workspace/.openclaw-install:ro  # read only 
+      - .openclaw-data:/workspace/.openclaw-data:rw  # read write 
+      - projects:/workspace/projects:rw  # read write 
     build: ./containers/openclaw/debian  # Debian-based
     container_name: openclaw
     # --- utilizador não-root -------------------------------------------
     user: "1000:1000"
     environment:
       - NODE_ENV=development
-      - OPENCLAW_HOME=/home/projeto/openclaw_data
-      - OPENCLAW_CONFIG=/home/projeto/openclaw_data/config/openclaw.json  # This is the crucial line
+      # openclaw setup
+      - OPENCLAW_HOME=/home/.openclaw-data
+      - OPENCLAW_CONFIG=/home/projeto/openclaw_data/config/openclaw.json
       - OPENCLAW_LOGS=/home/projeto/openclaw_data/logs
       - OPENCLAW_WORKSPACE=/home/projeto/projetos
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
       - OPENCLAW_GATEWAY_PORT=18789
       - OPENCLAW_BRIDGE_PORT=18790
+      - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
       - PUID=${UID:-1000}
       - PGID=${GID:-1000}
       - LLM_TYPE=openai  # ou 'generic', 'local' dependendo da ferramenta
-      - OPENAI_API_BASE=http://tabbyapi:5000/v1
-      - OPENAI_BASE_URL=http://tabbyapi:5000/v1
-      - OPENAI_API_KEY=${TABBY_API_KEY}
-      - MODEL_NAME=Nanbeige4.1-3B-EXL2-8.0bpw # Opcional, mas ajuda
+      - OPENAI_API_BASE=http://llama:8080/v1
+      - OPENAI_BASE_URL=http://llama:8080/v1
+      - OPENAI_API_KEY=llamacpp-local
+      - MODEL_NAME=Llama-3.2-3B-Instruct-Q8_0.gguf # Opcional, mas ajuda
       - PROXY_MODE=OPEN  # Variável de controle: RESTRICTED ou OPEN
       # ⭐⭐ VARIÁVEIS - herdam do shell/scripts
       - HTTP_PROXY=http://open_proxy_temp:3128
       - HTTPS_PROXY=http://open_proxy_temp:3128
       # Exclui serviços internos do proxy
-      - NO_PROXY=localhost,127.0.0.1,tabbyapi
+      - NO_PROXY=localhost,127.0.0.1,llama
       - GATEWAY_BIND=lan   # This line does the configuration to avoid ERRCONNREFUSED na gateway
       - MCP_SERVER_URL=http://obsidian-mcp:${MCP_PORT:-3102}/mcp
     ports:
@@ -133,7 +102,7 @@ services:
     depends_on:
       openclaw:
         condition: service_healthy
-      tabbyapi:
+      llama:
         condition: service_healthy
 
   open_proxy_temp:        # Proxy ABERTO (sob demanda)
@@ -154,26 +123,41 @@ services:
           - open_proxy_temp
 
   # -----------------------------------------------------------
-  # tabbyAPI — servidor de modelos LLM local
+  # OLLAMA — servidor de modelos LLM local
   # Sem portas expostas para o host — só acessível na rede
-  # interna pelo OpenClaw via http://tabbyapi:5000
+  # interna pelo OpenClaw via http://ollama:11434
   # Usa o proxy de saída para fazer download de modelos.
   # -----------------------------------------------------------
-  tabbyapi:
-    build:
-      context: ./containers/tabbyAPI/ubuntu
-    container_name: tabbyapi
-    ports:
-      - "5000:5000"
+  llama:
+    build: 
+      context: ./containers/llama/ubuntu
+      dockerfile: Dockerfile   
+    container_name: llama  # Specific container name
+    user: "0:0"  # corre como root
+    security_opt: # idem aspas
+      - "label=disable"
+    # define pasta com permissoes para instalar npm no modo rootless
     environment:
-      - NAME=TabbyAPI
-      - NVIDIA_VISIBLE_DEVICES=all
+      npm_config_cache: /home/projeto/.npm-cache
+      npm_config_prefix: /home/projeto/.npm-global
+      LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
+      USER_HOME: /home/projeto
+      MODEL_PATH: /home/projeto/models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all,compute,graphics,video,utility
+      VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/intel_icd.json:/etc/vulkan/icd.d/nvidia_icd.json
+      VK_LOADER_DEBUG: all
+    ports:
+      - "8080:8080"
+    # monta o workspace no container
     volumes:
-      - ./containers/tabbyAPI/ubuntu/models:/app/tabbyAPI/models
-      - ./containers/tabbyAPI/ubuntu/config.yml:/app/tabbyAPI/config.yml
-      # - /path/to/api_tokens.yml:/app/api_tokens.yml       # Change me
-    # no intel support
-    # cuda
+      - type: bind
+        source: ..  # Pasta pai (raiz do projeto) >> openclaw >> containers >> .devcontainer >> raiz
+        target: /home/projeto
+    group_add:
+      - "992" # render
+    devices:
+      - /dev/dri:/dev/dri  # Passa a Intel GPU para o contentor
     deploy:
       resources:
         reservations:
@@ -181,32 +165,66 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    # runtime: nvidia  # em vez do deploy.resources
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        echo "=== DEBUG INFO ===" &&
+        echo "HOME: $$HOME" &&
+        echo "PWD: $$(pwd)" &&
+        echo "USER: $$(whoami)" &&
+        echo "UID: $$(id -u)" &&
+        echo "MODEL_PATH: $$MODEL_PATH" &&
+        echo "" &&
+        echo "=== LISTANDO /home ===" &&
+        ls -la /home/ &&
+        echo "" &&
+        echo "=== LISTANDO /home/projeto ===" &&
+        ls -la /home/projeto/ &&
+        echo "" &&
+        echo "=== LISTANDO /home/projeto/models ===" &&
+        ls -la /home/projeto/models/ &&
+        echo "" &&
+        echo "=== VERIFICANDO SE MODELO EXISTE ===" &&
+        if [ -f "$$MODEL_PATH" ]; then
+          echo "✓ Modelo encontrado: $$MODEL_PATH";
+          ls -lh "$$MODEL_PATH";
+        else
+          echo "✗ Modelo NÃO encontrado: $$MODEL_PATH";
+        fi &&
+        echo "" &&
+        echo "=== testa comunicacao com dev/dri ===" &&
+        echo "test -w /dev/dri/renderD128 && echo 'Acesso OK' || echo 'Sem acesso'" &&
+        echo "=== Confirma permissões no dev/dri ===" &&
+        ls -la /dev/dri/ &&
+        echo "" &&
+        echo "=== INICIANDO LLAMA-SERVER ===" &&
+        echo "=== SWITCHING TO USER 1000 ===" &&
+        exec gosu 1000:1000 /app/llama-server
+        --host 0.0.0.0
+        --port 8080
+        -m "$$MODEL_PATH"
+        -ngl -1
+        --ctx-size 32000
+    # --device Vulkan0,Vulkan1
+    # -ts 50,50
     restart: unless-stopped
     networks:
       - openclaw_internal_secure     # Rede do proxy seguro
       - openclaw_internal_maintenance # Rede do proxy aberto (quando ativo)
-    # --- healthcheck: verifica se a API do tabbyapi responde ----
+    # --- healthcheck: verifica se a API do llama responde ----
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
+      # --vê se o ollama existe...
+      test: ["CMD-SHELL", "pgrep llama || exit 1"]
+      interval: 15s
+      timeout: 5s
       retries: 3
+      start_period: 20s # Increased to give the model/GPU time to initialize
 
-# -------------------------------------------------------------
-# Rede interna isolada — sem acesso à internet por defeito.
-# O container openclaw só comunica com o proxy de saída.
-# -------------------------------------------------------------
-# networks:
-#   openclaw_internal:
-#     driver: bridge
-#     internal: true          # bloqueia tráfego de/para exterior
-#     ipam:
-#       config:
-#         - subnet: 172.28.0.0/28   # sub-rede pequena e controlada
 
-#   openclaw_egress:
-#     driver: bridge
-#     internal: false         # permite saída, mas só via proxy
+  # -----------------------------------------------------------
+  # main memory - cognee
+  # -----------------------------------------------------------
 
 networks:
   openclaw_internal_secure:

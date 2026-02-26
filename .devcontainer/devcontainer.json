@@ -1,39 +1,30 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-  "name": "Safe openclaw",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "name": "Safeclaw",
   // ::: global :::
   "dockerComposeFile": "docker-compose.yml",
   "service": "openclaw",
-  // ::: openclaw :::
-  //"dockerComposeFile": "./containers/openclaw/debian/docker-compose.yml",
-  //"service": "openclaw",
-  //"postCreateCommand": "bash /home/projeto/.devcontainer/containers/openclaw/debian/post-start.sh", 
-  // ::: llama :::
-  //"dockerComposeFile": "./containers/llama/ubuntu/docker-compose.yml",
-  //"service": "llama",
-  // ::: squid :::
-  //"dockerComposeFile": "./containers/squid/alpine/docker-compose.yml",
-  //"service": "openclaw_egress_proxy",
-  // ---
+  // compatibility and security args
+  //  Docker requires --userns=keep-id in rootless mode
   "runArgs": ["--userns=keep-id", "--security-opt", "label=disable"],
-  // user da imagem principal, pede uma string ( aqui root, no entrypoint corrige para node )
+  // starts as root, and in the container / entrypoint lowers to 1000 )
   "containerUser": "root:root",
+  // the way vscode connects, all the used containers default user_id is 1000, but names can change ( node, squid,... )
   "remoteUser": "1000:1000",
-  // IMPORTANTE: Define onde o workspace será montado no container
-  "workspaceFolder": "/home/projeto",
-  // Monta TODO o repositório (pasta pai do .devcontainer)
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/projeto,type=bind",
-  // define pasta com permissoes para instalar npm
+  // Defines where the workspace is mounted
+  "workspaceFolder": "/workspace",
+  // mount workspace to home
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  // define folder with permissions to install npm
   "containerEnv": {
-    "npm_config_cache": "/home/projeto/.npm-cache",
-    "npm_config_prefix": "/home/projeto/.npm-global"
+    "npm_config_cache": "/workspace/.openclaw-install/.npm-cache",
+    "npm_config_prefix": "/workspace/.openclaw-install/.npm-global"
     },
-  // IMPORTANTE: nao Atualiza o UID do usuário remoto para corresponder ao host, para nao dar merd*
+  // IMPORTANT: do not update remote user UID, for containers finegrained control
   "updateRemoteUserUID": false, 
-  // ⬇️ AQUI é onde defines o script de inicialização ⬇️
-  "postCreateCommand": "bash /home/projeto/.devcontainer/containers/openclaw/debian/post-start.sh",  
-  // Executa SEMPRE que o container inicia (após postCreateCommand)
-  "postStartCommand": "echo 'Container OpenClaw pronto!'"
+  // ⬇️ here lies the openclaw installation script ⬇️
+  "postCreateCommand": "bash /workspace/.openclaw-install/post-compose.sh",  
+  // script that executes after posCreateCommand
+  "postStartCommand": "echo 'Container OpenClaw is ready!'"
 }
