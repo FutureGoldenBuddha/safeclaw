@@ -8,7 +8,7 @@ lerna-debug.log*
 
 # openclaw install
 .devcontainer/.openclaw_install
-.devcontainer/openclaw_data
+.devcontainer/.openclaw_data
 
 # projetos
 projetos
