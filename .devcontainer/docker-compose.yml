@@ -15,7 +15,6 @@ services:
       - .openclaw_install:/workspace/.openclaw_install:rw  # should be read only, but...
       - .openclaw_data:/workspace/.openclaw_data:rw  # read write 
       - my_projects:/workspace/my_projects:rw  # read write
-      - ./README.md:/workspace/README.md
     env_file:
       - ./containers/openclaw/debian/openclaw.env
     ports:
