@@ -7,58 +7,42 @@ RUN apt-get update && apt-get install -y \
     curl wget ca-certificates python3 make g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# (create and) change to .openclaw directory
-
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Verificar se o grupo 1000 já existe e usar nome apropriado
-RUN echo "a criar user non root = 1000"
+# Check if group 1000 already exists and use appropriate name
+RUN echo "Creating non‑root user with UID/GID 1000"
 RUN if getent group 1000 > /dev/null; then \
         EXISTING_GROUP=$(getent group 1000 | cut -d: -f1); \
-        echo "Grupo GID 1000 já existe: $EXISTING_GROUP"; \
+        echo "Group GID 1000 already exists: $EXISTING_GROUP"; \
     else \
         groupadd --gid 1000 node; \
     fi
 
-# Verificar se usuário 1000 já existe
+# Check if user 1000 already exists
 RUN if getent passwd 1000 > /dev/null; then \
         EXISTING_USER=$(getent passwd 1000 | cut -d: -f1); \
-        echo "Usuário UID 1000 já existe: $EXISTING_USER"; \
+        echo "User UID 1000 already exists: $EXISTING_USER"; \
     else \
         useradd --uid 1000 --gid 1000 -m node; \
     fi
 
-# # Criar estrutura de diretórios
-# RUN echo "a criar diretorios de instalacao e projetos"
-# RUN mkdir -p /workspace/.openclaw_install /workspace/projetos \
-#     && chown -R 1000:1000 /workspace/.openclaw_install /workspace/projetos
-
-# WORKDIR /openclaw
-EXPOSE 18789 18790
-
-# Copia ou cria o entrypoint.sh (se ainda não tiver feito)
-# COPY entrypoint.sh /home/node/entrypoint.sh
-
-# RUN chmod 755 /home/node/entrypoint.sh && \
-#     chown 1000:1000 /home/node/entrypoint.sh
-
-# 1. Criar pastas de sistema e de projeto
+# Create system and project directories
 RUN mkdir -p /home/install /workspace/.openclaw_install /workspace/my_projects \
     && chown -R 1000:1000 /workspace
 
-# 2. Copiar o entrypoint para a pasta de instalação
+# Copy entrypoint script to the installation folder
 COPY --chown=1000:1000 entrypoint.sh /workspace/.openclaw_install/entrypoint.sh
 RUN chmod +x /workspace/.openclaw_install/entrypoint.sh
-# = config
+
+# Copy configuration file
 COPY --chown=1000:1000 ./config/openclaw.json /workspace/.openclaw_install/openclaw.json
 
-# 3. Definir o ambiente de trabalho na pasta de projeto
-# WORKDIR /workspace
+# Expose OpenClaw ports
+EXPOSE 18789 18790
 
-# Muda para usuário não-root no entrypoint...
-# USER 1000:1000
-
-# Define o script como o entrypoint
+# Set the entrypoint script
 ENTRYPOINT ["/workspace/.openclaw_install/entrypoint.sh"]
+
+# Default command (keeps container alive)
 CMD ["sleep", "infinity"]
