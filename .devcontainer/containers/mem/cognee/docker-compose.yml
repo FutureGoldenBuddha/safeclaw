@@ -42,7 +42,7 @@ services:
       # NOVAS CONFIGURAÇÕES PARA BANCO DE DADOS
       # Banco relacional (obrigatório para pgvector)
       - DB_PROVIDER=postgres
-      - DB_HOST=http://cognee_postgres:5432
+      - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=cognee_db
       - DB_USERNAME=cognee_user
