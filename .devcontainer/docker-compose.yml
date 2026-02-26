@@ -12,8 +12,8 @@ services:
     user: "1000:1000"
     build: ./containers/openclaw/debian
     volumes:
-      - .openclaw-install:/workspace/.openclaw-install:ro  # read only 
-      - .openclaw-data:/workspace/.openclaw-data:rw  # read write 
+      - .openclaw_install:/workspace/.openclaw_install:rw  # should be read only, but...
+      - .openclaw_data:/workspace/.openclaw_data:rw  # read write 
       - my_projects:/workspace/my_projects:rw  # read write 
     env_file:
       - ./containers/openclaw/debian/openclaw.env
@@ -228,6 +228,12 @@ volumes:
   cognee_logs:
     driver: local
   postgres_data:
+    driver: local
+  my_projects:
+    driver: local
+  .openclaw_install:
+    driver: local
+  .openclaw_data:
     driver: local
   my_projects:
     driver: local

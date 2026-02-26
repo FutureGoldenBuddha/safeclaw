@@ -17,8 +17,8 @@ echo "Creating installation and projects directories..."
 echo "host user"
 USER_ID=${PUID:-1000}
 GROUP_ID=${PGID:-1000}
-echo $(USER_ID)
-echo $(GROUP_ID)
+echo $USER_ID
+echo $GROUP_ID
 
 # Fixes workspace permissions because apparently docker-compose.yml messes everything up
 chown -R $USER_ID:$GROUP_ID /workspace
