@@ -235,5 +235,3 @@ volumes:
     driver: local
   .openclaw_data:
     driver: local
-  my_projects:
-    driver: local
