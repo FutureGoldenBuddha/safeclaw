@@ -3,10 +3,7 @@
 {
   "name": "Safeclaw",
   // ::: global :::
-  "build": {
-    "dockerComposeFile": ".devcontainer/docker-compose.yml",
-    "context": ".."
-  },
+  "dockerComposeFile": "docker-compose.yml",
   "service": "openclaw",
   // compatibility and security args
   //  Docker requires --userns=keep-id in rootless mode
@@ -29,5 +26,5 @@
   // ⬇️ here lies the openclaw installation script ⬇️
   "postCreateCommand": "bash /temp/post-compose.sh",  
   // script that executes after posCreateCommand
-  "postStartCommand": "cp ../README.md /workspace && echo 'Container OpenClaw is ready!'"
+  "postStartCommand": "cp START_HERE.md /workspace && echo 'Container OpenClaw is ready!'"
 }
