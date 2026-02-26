@@ -14,7 +14,7 @@ services:
     volumes:
       - .openclaw-install:/workspace/.openclaw-install:ro  # read only 
       - .openclaw-data:/workspace/.openclaw-data:rw  # read write 
-      - projects:/workspace/projects:rw  # read write 
+      - my_projects:/workspace/my_projects:rw  # read write 
     env_file:
       - ./containers/openclaw/debian/openclaw.env
     ports:
@@ -98,7 +98,7 @@ services:
     # start as root, end as 1000 through entrypoint
     user: "0:0"  
     build: 
-      context: ./containers/llama/ubuntu
+      context: ./containers/llm/llama/ubuntu
       dockerfile: Dockerfile   
     # security_opt: # workaround when a container needs to access files on the host system (via bind mounts)
     # but is being blocked by SELinux security policies
@@ -138,8 +138,81 @@ services:
       start_period: 20s # Increased to give the model/GPU time to initialize
 
   # -----------------------------------------------------------
+  # embeddings - cognee
+  # -----------------------------------------------------------
+  embeddings:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: embeddings
+    ports:
+      - "127.0.0.1:8081:8081"
+    volumes:
+      - ./models:/models
+    command: >
+      -m /models/nomic-embed-text-v1.5.Q8_0.gguf
+      --host 0.0.0.0
+      --port 8081
+      --embeddings
+      --ctx-size 8192 
+      --batch-size 2048
+      --ubatch-size 2048
+      -ngl 0
+    networks:
+      - openclaw_internal_secure   
+      - openclaw_internal_maintenance 
+
+  # -----------------------------------------------------------
+  # postgreSQL com pgvector- cognee
+  # -----------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16 
+    container_name: cognee_postgres
+    environment:
+      - POSTGRES_DB=cognee_db
+      - POSTGRES_USER=cognee_user
+      - POSTGRES_PASSWORD=cognee_password
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - openclaw_internal_secure   
+      - openclaw_internal_maintenance 
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cognee_user -d cognee_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -----------------------------------------------------------
   # main memory - cognee
   # -----------------------------------------------------------
+  cognee:
+    build:
+      context: ./containers/mem/cognee/debian
+      dockerfile: Dockerfile   
+    container_name: cognee
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - ./containers/mem/cognee/debian/cognee.env
+    volumes:
+      - cognee_data:/app/cognee/.cognee_system
+      - cognee_logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - openclaw_internal_secure   
+      - openclaw_internal_maintenance 
+    depends_on:
+      - llama
+      - embeddings
+      - postgres 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   openclaw_internal_secure:
@@ -148,3 +221,13 @@ networks:
     internal: true
   openclaw_egress:
     driver: bridge
+
+volumes:
+  cognee_data:
+    driver: local
+  cognee_logs:
+    driver: local
+  postgres_data:
+    driver: loca
+  my-projects:
+    driver: locall

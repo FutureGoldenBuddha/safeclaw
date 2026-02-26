@@ -154,5 +154,5 @@ volumes:
     driver: local
   cognee_logs:
     driver: local
-  postgres_data:   # novo volume para persistência do PostgreSQL
+  postgres_data:
     driver: local
