@@ -82,12 +82,12 @@ if [ ! -d "dist" ]; then
     echo "✅ OpenClaw built"
 fi
 
-    echo "⚙️ Copying initial OpenClaw Config file..."
-    
-    mkdir -p /workspace/.openclaw_data/.openclaw
-    cp /temp/openclaw.json /workspace/.openclaw_data/.openclaw
+echo "⚙️ Copying initial OpenClaw Config file..."
 
-    echo "✅ Copied openclaw.json to /workspace/.openclaw_data/.openclaw successfully!"
+mkdir -p /workspace/.openclaw_data/.openclaw
+cp /temp/openclaw.json /workspace/.openclaw_data/.openclaw
+
+echo "✅ Copied openclaw.json to /workspace/.openclaw_data/.openclaw successfully!"
 
 #
 # 5. Create workspace directory structure
