@@ -26,5 +26,5 @@
   // ⬇️ here lies the openclaw installation script ⬇️
   "postCreateCommand": "bash /temp/post-compose.sh",  
   // script that executes after posCreateCommand
-  "postStartCommand": "cp START_HERE.md /workspace && echo 'Container OpenClaw is ready!'"
+  "postStartCommand": "echo 'Container OpenClaw is ready!'"
 }
