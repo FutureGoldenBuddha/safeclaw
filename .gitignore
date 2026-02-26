@@ -14,8 +14,11 @@ lerna-debug.log*
 projetos
 # modelos
 models
-.devcontainer/containers/llama/ubuntu/models
-.devcontainer/containers/tabbyAPI/ubuntu/models
+.devcontainer/containers/llm/llama/ubuntu/models
+.devcontainer/containers/llm/ollama/ubuntu/models
+.devcontainer/containers/llm/tabbyAPI/ubuntu/models
+.devcontainer/containers/llm/vllm/ubuntu/models
+.devcontainer/containers/mem/cognee/debian/models
 
 # git bash
 git-start.sh
