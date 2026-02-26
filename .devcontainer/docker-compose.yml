@@ -48,11 +48,11 @@ services:
   # -----------------------------------------------------------
   # FORWARD PROXY for domains whitelisting
   # -----------------------------------------------------------
-  openclaw_egress_proxy: # Proxy SEGURO (sempre ativo)
+  openclaw_egress_proxy: # safe proxy, always active
+    container_name: safe_proxy
     build:
       context: ./containers/squid/alpine
       dockerfile: Dockerfile.safe
-    container_name: safe_proxy
     ports:
       - "3128:3128"
     restart: always
@@ -69,14 +69,14 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
-    # do not restrict internet access while setting up
+    # using depends_on to have a slight delay, not to restrict internet access while setting up
     depends_on:
       openclaw:
         condition: service_healthy
       llama:
         condition: service_healthy
   # -----------------------------------------------------------
-  # FORWARD PROXY for open internet access
+  # FORWARD PROXY for open internet access (for maintenance)
   # -----------------------------------------------------------
   open_proxy_temp:
     build:
@@ -86,23 +86,22 @@ services:
     networks:
       - openclaw_internal_maintenance
       - openclaw_egress
-
   # -----------------------------------------------------------
-  # OLLAMA — servidor de modelos LLM local
-  # Sem portas expostas para o host — só acessível na rede
-  # interna pelo OpenClaw via http://ollama:11434
-  # Usa o proxy de saída para fazer download de modelos.
+  # LLAMACPP — local LLM server
+  # note: put the models in the /models folder before setup
   # -----------------------------------------------------------
   llama:
+    container_name: llama
+    # start as root, end as 1000 through entrypoint
+    user: "0:0"  
     build: 
       context: ./containers/llama/ubuntu
       dockerfile: Dockerfile   
-    container_name: llama  # Specific container name
-    user: "0:0"  # corre como root
-    security_opt: # idem aspas
-      - "label=disable"
-    # define pasta com permissoes para instalar npm no modo rootless
+    # security_opt: # workaround when a container needs to access files on the host system (via bind mounts)
+    # but is being blocked by SELinux security policies
+    #  - "label=disable"
     environment:
+      # defines folder with permissions pto install npm
       npm_config_cache: /workspace/.npm-cache
       npm_config_prefix: /workspace/.npm-global
       LD_LIBRARY_PATH: /app:$LD_LIBRARY_PATH  # <-- IMPORTANTE!
