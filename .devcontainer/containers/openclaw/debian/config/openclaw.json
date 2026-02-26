@@ -10,7 +10,7 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "gemma-3-4b-it-q4_0.gguf",
+            "id": "Nanbeige4.1-3B.Q4_K_M.gguf",
             "name": "gemma 4B",
             "reasoning": false,
             "input": [
@@ -32,10 +32,10 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "llama/gemma-3-4b-it-q4_0"
+        "primary": "llama/Nanbeige4.1-3B.Q4_K_M"
       },
       "models": {
-        "llama/gemma-3-4b-it-q4_0": {}
+        "llama/Nanbeige4.1-3B.Q4_K_M.gguf": {}
       },
       "memorySearch": {
         "enabled": true,
