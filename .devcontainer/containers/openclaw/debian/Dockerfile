@@ -31,12 +31,12 @@ RUN if getent passwd 1000 > /dev/null; then \
 RUN mkdir -p /home/install /workspace/.openclaw_install /workspace/my_projects \
     && chown -R 1000:1000 /workspace
 
-# Copy entrypoint script to the installation folder
-COPY --chown=1000:1000 ./entrypoint.sh /workspace/.openclaw_install/entrypoint.sh
-RUN chmod +x /workspace/.openclaw_install/entrypoint.sh
+# Copy entrypoint script to a temp folder
+COPY --chown=1000:1000 entrypoint.sh /temp/entrypoint.sh
+RUN chmod +x /home/install/entrypoint.sh
 
-# Copy configuration file
-COPY --chown=1000:1000 ./config/openclaw.json /workspace/.openclaw_install/openclaw.json
+# Copy configuration file to a temp folder, and to the correct place @ post-compose
+COPY --chown=1000:1000 ./config/openclaw.json /temp/openclaw.json
 
 # Expose OpenClaw ports
 EXPOSE 18789 18790

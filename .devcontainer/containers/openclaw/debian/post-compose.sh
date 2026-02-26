@@ -81,6 +81,14 @@ if [ ! -d "dist" ]; then
     pnpm build
     echo "✅ OpenClaw built"
 fi
+
+    echo "⚙️ Copying initial OpenClaw Config file..."
+    
+    mkdir -p /workspace/.openclaw_data/.openclaw
+    cp /temp/openclaw.json /workspace/.openclaw_data/.openclaw
+
+    echo "✅ Copied openclaw.json to /workspace/.openclaw_data/.openclaw successfully!"
+
 #
 # 5. Create workspace directory structure
 # mkdir -p /openclaw_workspace/{skills,files,logs,config}
