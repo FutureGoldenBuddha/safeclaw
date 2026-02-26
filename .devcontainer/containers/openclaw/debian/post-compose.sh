@@ -1,116 +1,103 @@
 #!/bin/bash
-# post-start.sh - Configuração automática do ambiente
+# post-start.sh - Automatic environment setup
 #
 set -e
 #
-echo "🚀 Configurando ambiente OpenClaw..."
+echo "🚀 Setting up OpenClaw environment..."
 #
-# 1. Clonar OpenClaw se a pasta estiver vazia
-if [ ! -f "/home/projeto/openclaw_install/package.json" ]; then
-    echo "📦 Clonando repositório OpenClaw..."
-    git clone https://github.com/openclaw/openclaw.git /home/projeto/openclaw_install
+# 1. Clone OpenClaw if the folder is empty
+if [ ! -f "/workspace/.openclaw_install/package.json" ]; then
+    echo "📦 Cloning OpenClaw repository..."
+    git clone https://github.com/openclaw/openclaw.git /workspace/.openclaw_install
     # mv /openclaw-temp/* /openclaw-temp/.[!.]* /openclaw/ 2>/dev/null || true
     # rm -rf /openclaw-temp
-    echo "✅ OpenClaw clonado para /openclaw_install"
+    echo "✅ OpenClaw cloned to /.openclaw_install"
 else
-    echo "✅ OpenClaw já instalado em /openclaw_install"
+    echo "✅ OpenClaw already installed at /.openclaw_install"
 fi
 #
-# 2. Configurar git no repositório OpenClaw
-cd /home/projeto/openclaw_install
+# 2. Configure git in the OpenClaw repository
+cd /workspace/.openclaw_install
 if [ ! -f ".git/config" ]; then
-    echo "🔧 Configurando git no repositório OpenClaw..."
+    echo "🔧 Configuring git in the OpenClaw repository..."
     git init
     git config user.email "dev@email.com"
     git config user.name "dev"
 fi
 #
-# 2.5 Instala git hooks para poder instalar openclaw sem falhas
-# Configurar Git hooks do OpenClaw
-echo "🔗 Configurando Git hooks do OpenClaw..."
+# 2.5 Install git hooks to avoid failures when installing openclaw
+# Configure OpenClaw Git hooks
+echo "🔗 Configuring OpenClaw Git hooks..."
 
-HOOKS_SOURCE="/home/projeto/openclaw_install/git-hooks"
+HOOKS_SOURCE="/workspace/.openclaw_install/git-hooks"
 HOOKS_DEST=".git/hooks"
 
 if [ -d "$HOOKS_SOURCE" ]; then
-    echo "📁 Conteúdo de git-hooks:"
+    echo "📁 Contents of git-hooks:"
     ls -la "$HOOKS_SOURCE/"
 
-    # Se existir um ficheiro precommit (sem hífen), copiar para pre-commit (com hífen)
+    # If a precommit file (without hyphen) exists, copy it to pre-commit (with hyphen)
     if [ -f "$HOOKS_SOURCE/pre-commit" ]; then
-        echo "📋 Copiando pre-commit para $HOOKS_DEST/pre-commit..."
+        echo "📋 Copying pre-commit to $HOOKS_DEST/pre-commit..."
         cp "$HOOKS_SOURCE/pre-commit" "$HOOKS_DEST/pre-commit"
         chmod +x "$HOOKS_DEST/pre-commit"
-        echo "✅ Hook pre-commit instalado."
+        echo "✅ pre-commit hook installed."
     fi
 
-    # Se existirem outros hooks, copiá-los também
+    # Copy any other hooks as well
     for hook in "$HOOKS_SOURCE"/*; do
         hook_name=$(basename "$hook")
-        # Ignorar precommit já tratado
+        # Ignore pre-commit already handled
         if [ "$hook_name" != "pre-commit" ] && [ -f "$hook" ]; then
-            echo "📋 Copiando $hook_name..."
+            echo "📋 Copying $hook_name..."
             cp "$HOOKS_SOURCE/$hook" "$HOOKS_DEST/$hook_name"
             chmod +x "$HOOKS_DEST/$hook_name"
         fi
     done
 
-    # Configurar o hooksPath para a pasta git-hooks (opcional, mas pode ser necessário)
+    # Configure hooksPath to the git-hooks folder (optional, but may be needed)
     # git config core.hooksPath "$HOOKS_SOURCE"
-    # echo "✅ Git hooks configurados a partir de $HOOKS_SOURCE"
+    # echo "✅ Git hooks configured from $HOOKS_SOURCE"
 else
-    echo "⚠️  Pasta git-hooks não encontrada."
+    echo "⚠️  git-hooks folder not found."
 fi
 
-# 3. Instalar dependências do OpenClaw
+# 3. Install OpenClaw dependencies
 if [ ! -d "node_modules" ]; then
-    echo "📦 Instalando dependências do OpenClaw..."
-    # Configurar pnpm para permitir scripts (opcional, pode ser feito globalmente)
+    echo "📦 Installing OpenClaw dependencies..."
+    # Configure pnpm to allow scripts (optional, can be done globally)
     pnpm config set ignore-scripts false 2>/dev/null || true
     pnpm install
-    # Se houver scripts bloqueados, tente aprová-los automaticamente
-    echo "🛠️  Aprovando scripts de build bloqueados..."
+    # If there are blocked scripts, try to approve them automatically
+    echo "🛠️  Approving blocked build scripts..."
     pnpm approve-builds --all 2>/dev/null || true
-    echo "✅ Dependências instaladas"
+    echo "✅ Dependencies installed"
 fi
 #
-# 4. Construir OpenClaw
+# 4. Build OpenClaw
 if [ ! -d "dist" ]; then
-    echo "🔨 Construindo OpenClaw..."
+    echo "🔨 Building OpenClaw..."
     pnpm ui:build
     pnpm build
-    echo "✅ OpenClaw construído"
+    echo "✅ OpenClaw built"
 fi
 #
-# 5. Configuração inicial do OpenClaw
-if [ ! -f "/home/projeto/openclaw_install/config/openclaw.json" ]; then
-    echo "⚙️ Criando configuração inicial do OpenClaw..."
-    
-    mkdir -p /home/projeto/openclaw_install/config
-    cp /home/projeto/.devcontainer/containers/openclaw/debian/openclaw.json /home/projeto/openclaw_install/config
-
-    echo "✅ Configuração criada em /home/projeto/openclaw_install/config/openclaw.json"
-    echo "🔑 Token: ${OPENCLAW_GATEWAY_TOKEN}"
-fi
-#
-# 6. Criar estrutura de diretórios do workspace
+# 5. Create workspace directory structure
 # mkdir -p /openclaw_workspace/{skills,files,logs,config}
 # #
-# # 7. Permissões
+# 6. Permissions
 # chown -R developer:developer /openclaw_workspace 2>/dev/null || true
 #
 echo ""
-echo "✨ Ambiente configurado com sucesso!"
+echo "✨ Environment successfully configured!"
 echo ""
-echo "📁 Estrutura de diretórios:"
-echo "   /openclaw           - Código fonte do OpenClaw"
-echo "   /openclaw_workspace - Workspace e dados do OpenClaw"
-echo "   /projetos           - Teus projetos pessoais"
+echo "📁 Directory structure:"
+echo "   /openclaw           - OpenClaw source code"
+echo "   /openclaw_workspace - OpenClaw workspace and data"
+echo "   /projetos           - Your personal projects"
 echo ""
-echo "🚀 Comandos úteis:"
+echo "🚀 Useful commands:"
 echo "   cd /openclaw && pnpm gateway:watch"
-echo "   cd /projetos          # Para trabalhar nos teus projetos"
+echo "   cd /projetos          # To work on your personal projects"
 echo ""
 #
-
-

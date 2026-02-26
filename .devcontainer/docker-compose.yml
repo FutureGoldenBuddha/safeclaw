@@ -229,5 +229,5 @@ volumes:
     driver: local
   postgres_data:
     driver: loca
-  my-projects:
+  my_projects:
     driver: locall

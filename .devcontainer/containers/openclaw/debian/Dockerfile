@@ -31,8 +31,8 @@ RUN if getent passwd 1000 > /dev/null; then \
 
 # # Criar estrutura de diretórios
 # RUN echo "a criar diretorios de instalacao e projetos"
-# RUN mkdir -p /home/projeto/openclaw_install /home/projeto/projetos \
-#     && chown -R 1000:1000 /home/projeto/openclaw_install /home/projeto/projetos
+# RUN mkdir -p /workspace/.openclaw_install /workspace/projetos \
+#     && chown -R 1000:1000 /workspace/.openclaw_install /workspace/projetos
 
 # WORKDIR /openclaw
 EXPOSE 18789 18790
@@ -44,19 +44,21 @@ EXPOSE 18789 18790
 #     chown 1000:1000 /home/node/entrypoint.sh
 
 # 1. Criar pastas de sistema e de projeto
-RUN mkdir -p /home/install /home/projeto/openclaw_install /home/projeto/projetos \
-    && chown -R 1000:1000 /home/install /home/projeto
+RUN mkdir -p /home/install /workspace/.openclaw_install /workspace/my_projects \
+    && chown -R 1000:1000 /workspace
 
 # 2. Copiar o entrypoint para a pasta de instalação
-COPY --chown=1000:1000 entrypoint.sh /home/install/entrypoint.sh
-RUN chmod +x /home/install/entrypoint.sh
+COPY --chown=1000:1000 entrypoint.sh /workspace/.openclaw_install/entrypoint.sh
+RUN chmod +x /workspace/.openclaw_install/entrypoint.sh
+# = config
+COPY --chown=1000:1000 ./config/openclaw.json /workspace/.openclaw_install/openclaw.json
 
 # 3. Definir o ambiente de trabalho na pasta de projeto
-# WORKDIR /home/projeto
+# WORKDIR /workspace
 
 # Muda para usuário não-root no entrypoint...
 # USER 1000:1000
 
 # Define o script como o entrypoint
-ENTRYPOINT ["/home/install/entrypoint.sh"]
+ENTRYPOINT ["/workspace/.openclaw_install/entrypoint.sh"]
 CMD ["sleep", "infinity"]
