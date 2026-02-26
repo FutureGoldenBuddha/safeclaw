@@ -1,0 +1,73 @@
+{
+  "tools": {
+    "allow": [ "group:fs", "group:runtime", "group:sessions" ]
+  },
+  "models": {
+    "providers": {
+      "tabbyapi": {
+        "baseUrl": "http://llama:8080/v1",
+        "apiKey": "${OPENAI_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gemma-3-4b-it-q4_0.gguf",
+            "name": "gemma 4B",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 33000,
+            "maxTokens": 2048
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "llama/gemma-3-4b-it-q4_0"
+      },
+      "models": {
+        "llama/gemma-3-4b-it-q4_0": {}
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "compaction": {
+    "memoryFlush": {
+      "enabled": true,
+      "softThresholdTokens": 40000,
+      "prompt": "Distill this session to memory/YYYY-MM-DD.md. Focus on decisions, state changes, lessons, blockers. If nothing: NO_FLUSH",
+      "systemPrompt": "Extract only what is worth remembering. No fluff."
+    }
+  },
+  "contextPruning": {
+    "mode": "cache-ttl",
+    "ttl": "6h",
+    "keepLastAssistants": 3
+  },
+  "memorySearch": {
+    "enabled": true,
+    "sources": ["memory", "sessions"],
+    "query": {
+      "hybrid": {
+        "enabled": true,
+        "vectorWeight": 0.7,
+        "textWeight": 0.3
+      }
+    },    
+    "experimental": {
+        "sessionMemory": true
+    }
+  }
+}
