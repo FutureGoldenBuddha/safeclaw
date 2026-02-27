@@ -1,0 +1,17 @@
+# CREATE THIS FILE IN THE /app folder of cognee container
+# THEN USE `export CONFIG_FILE_PATH=/app/litellm_config.yaml`
+
+#model_list:
+#  - model_name: my-local-model
+#    litellm_params:
+#      model: openai/llama-cpp # Use 'openai/' prefix for llama.cpp
+#      api_base: "http://localhost:8080/v1" # Your llama.cpp server address
+#      api_key: "sk-not-required" # Required by LiteLLM but ignored by llama.cpp
+      
+litellm_settings:
+  # Fixes the "tokenizer not provided" error by using a standard Llama tokenizer
+  # LiteLLM will use this to count tokens locally before sending the request.
+  tokenizer_name: "hf-internal-testing/llama-tokenizer" 
+  
+  # Optional: Disable if your local model doesn't support specific OpenAI params
+  drop_params: True 

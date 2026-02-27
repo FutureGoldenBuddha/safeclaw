@@ -5,25 +5,15 @@ plugins:
       config:
         # URL do servidor Cognee (rodando via Docker)
         baseUrl: "http://cognee:8000"
-
         # Token de autenticação — use variável de ambiente (mais seguro)
         apiKey: "${COGNEE_API_KEY}"
-
         # Nome do dataset: separa memórias por projeto
-        # Use nomes diferentes para projetos diferentes
         datasetName: "my-project"
-
-        # Tipo de busca no grafo:
-        # GRAPH_COMPLETION — mais rico, traversa relações (recomendado)
-        # CHUNKS           — retorna chunks de texto diretamente
-        # SUMMARIES        — retorna resumos de cada documento
+        # Tipo de busca no grafo: GRAPH_COMPLETION — mais rico, traversa relações (recomendado)
         searchType: "GRAPH_COMPLETION"
-
         # Injetar contexto relevante antes de cada prompt
         autoRecall: true
-
         # Sincronizar arquivos de memória após cada sessão
         autoIndex: true
-
         # Número de resultados de memória a injetar (default: 5)
-        recallLimit: 5
+        recallLimit: 5        

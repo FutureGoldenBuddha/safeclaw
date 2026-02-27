@@ -213,7 +213,7 @@ services:
     volumes:
       - cognee_data:/app/cognee/.cognee_system
       - cognee_logs:/app/logs
-      - ./models:/models:ro
+      - ./models/nomic-embed-text-v1.5-safetensors:/models/nomic-embed-text-v1.5:ro
     restart: unless-stopped
     networks:
       - openclaw_internal_secure   
