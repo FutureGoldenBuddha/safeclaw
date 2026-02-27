@@ -6,7 +6,7 @@ From the `openclaw_install` directory inside the container:
 pnpm openclaw onboard
 pnpm openclaw models set llama/Ministral-3-3B-Instruct-2512-Q8_0.gguf
 pnpm openclaw models list
-pnpm openclaw gateway --bind loopback --port 18789 --allow-unconfigured --token gateway-token
+cd .openclaw_install && pnpm openclaw gateway --bind loopback --port 18789 --allow-unconfigured --token gateway-token
 ```
 
 **Note**: final config is at `openclaw_data/.openclaw/openclaw.json`. If `models.providers` is missing after onboarding, add it manually. 📝🔎
@@ -31,7 +31,7 @@ run `pnpm openclaw plugins list` to see cognee's id to see its status
 
 it should be memory-cognee, now run
 
-`pnpm openclaw plugins enable memory-cognee`
+`cd .openclaw_install && pnpm openclaw plugins enable memory-cognee`
 
 now try
 
