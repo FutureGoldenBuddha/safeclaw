@@ -167,7 +167,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 20s # Increased to give the model/GPU time to initialize
+      start_period: 60s # Increased to give the model/CPU time to initialize
 
   # -----------------------------------------------------------
   # postgreSQL com pgvector- cognee
@@ -212,10 +212,10 @@ services:
     networks:
       - openclaw_internal_secure   
       - openclaw_internal_maintenance 
-    depends_on:
-      - llama
-      - embeddings
-      - postgres 
+    # depends_on:
+    #   - llama
+    #   - embeddings
+    #   - postgres 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
