@@ -9,7 +9,7 @@ services:
   # -----------------------------------------------------------
   openclaw:
     container_name: openclaw
-    user: "1000:1000"
+    user: "root:root"
     build: ./containers/openclaw/debian
     volumes:
       - .openclaw_install:/workspace/.openclaw_install:rw  # should be read only, but...
