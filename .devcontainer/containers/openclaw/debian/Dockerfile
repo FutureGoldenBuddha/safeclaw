@@ -50,7 +50,7 @@ COPY --chown=1000:1000 ./config/openclaw.json /temp/openclaw.json
 COPY --chown=1000:1000 START_HERE.md /workspace
 
 # Expose OpenClaw ports
-EXPOSE 18789 18790
+EXPOSE 18789/tcp 18790/tcp
 
 # Set the entrypoint script
 ENTRYPOINT ["/temp/entrypoint.sh"]

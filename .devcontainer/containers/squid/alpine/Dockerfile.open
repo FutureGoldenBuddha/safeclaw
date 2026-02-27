@@ -1,5 +1,4 @@
 FROM alpine:latest
-LABEL maintainer="jose.pinho.oliveira@gmail.com"
 
 # 1. Create a group with GID 1000
 # 2. Create a user with UID 1000, no password (-D), and assign to the group

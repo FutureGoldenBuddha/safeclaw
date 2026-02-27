@@ -22,7 +22,7 @@
     "npm_config_prefix": "/workspace/.openclaw-install/.npm-global"
     },
   // forward ports from devcontainer to host for better debug
-  "forwardPorts": [8000, 5432, 8080, 8081, 18789, 18780, 32128, 32129],
+  //"forwardPorts": [8000, 5432, 8080, 8081, 18789, 18780, 32128, 32129],
   // IMPORTANT: do not update remote user UID, for containers finegrained control
   "updateRemoteUserUID": false, 
   // ⬇️ here lies the openclaw installation script ⬇️

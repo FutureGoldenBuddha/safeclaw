@@ -27,7 +27,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Expose the server port
-EXPOSE 8080
+EXPOSE 8080/tcp
 
 # Set the custom script as the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
