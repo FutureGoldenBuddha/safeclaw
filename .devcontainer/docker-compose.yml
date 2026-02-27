@@ -12,8 +12,8 @@ services:
     user: "root:root"
     build: ./containers/openclaw/debian
     volumes:
-      - .openclaw_install:/workspace/.openclaw_install:rw  # should be read only, but...
-      - .openclaw_data:/workspace/.openclaw_data:rw  # read write 
+      - openclaw_install:/workspace/.openclaw_install:rw  # should be read only, but...
+      - openclaw_data:/workspace/.openclaw_data:rw  # read write 
       - my_projects:/workspace/my_projects:rw  # read write
     env_file:
       - ./containers/openclaw/debian/openclaw.env
@@ -153,7 +153,7 @@ services:
     # ports:
     #   - "8081:8081"
     volumes:
-      - ./models:/models
+      - ./models:/models:ro
     command: >
       -m /models/nomic-embed-text-v1.5.Q8_0.gguf
       --host 0.0.0.0
@@ -214,7 +214,7 @@ services:
       - cognee_system:/app/cognee/.cognee_system:rw  # read write 
       - cognee_data:/app/cognee/.data_storage:rw  # read write 
       - cognee_logs:/app/logs:rw  # read write 
-      - .openclaw_data:/workspace/.openclaw_data:rw  # read write 
+      - openclaw_data:/workspace/.openclaw_data:rw  # read write 
     restart: unless-stopped
     networks:
       - openclaw_internal_secure   
@@ -253,7 +253,7 @@ volumes:
     driver: local
   my_projects:
     driver: local
-  .openclaw_install:
+  openclaw_install:
     driver: local
-  .openclaw_data:
+  openclaw_data:
     driver: local
