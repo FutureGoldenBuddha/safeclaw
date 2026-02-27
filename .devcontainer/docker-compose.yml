@@ -133,7 +133,7 @@ services:
       - openclaw_internal_secure   
       - openclaw_internal_maintenance 
     healthcheck:
-      test: ["CMD-SHELL", "pgrep llama || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -163,11 +163,11 @@ services:
       - openclaw_internal_secure   
       - openclaw_internal_maintenance 
     healthcheck:
-      test: ["CMD-SHELL", "pgrep cognee_embeddings || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 60s # Increased to give the model/CPU time to initialize
+      start_period: 30s # Increased to give the model/CPU time to initialize
 
   # -----------------------------------------------------------
   # postgreSQL com pgvector- cognee
