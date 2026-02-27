@@ -213,6 +213,7 @@ services:
     volumes:
       - cognee_data:/app/cognee/.cognee_system
       - cognee_logs:/app/logs
+      - ./models/tokenizers:/tokenizers:ro
     restart: unless-stopped
     networks:
       - openclaw_internal_secure   
