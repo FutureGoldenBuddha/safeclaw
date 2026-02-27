@@ -211,9 +211,10 @@ services:
     env_file:
       - ./containers/mem/cognee/debian/cognee.env
     volumes:
-      - cognee_data:/app/cognee/.cognee_system
-      - cognee_logs:/app/logs
-      - ./models/nomic-embed-text-v1.5-safetensors:/models/nomic-embed-text-v1.5:ro
+      - cognee_system:/app/cognee/.cognee_system:rw  # read write 
+      - cognee_data:/app/cognee/.data_storage:rw  # read write 
+      - cognee_logs:/app/logs:rw  # read write 
+      - .openclaw_data:/workspace/.openclaw_data:rw  # read write 
     restart: unless-stopped
     networks:
       - openclaw_internal_secure   
@@ -242,6 +243,8 @@ networks:
     internal: false
 
 volumes:
+  cognee_system:
+    driver: local
   cognee_data:
     driver: local
   cognee_logs:
