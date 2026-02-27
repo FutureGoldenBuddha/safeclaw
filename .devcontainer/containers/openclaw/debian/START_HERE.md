@@ -10,3 +10,25 @@ pnpm openclaw gateway --bind loopback --port 18789 --allow-unconfigured --token 
 ```
 
 **Note**: final config is at `openclaw_data/.openclaw/openclaw.json`. If `models.providers` is missing after onboarding, add it manually. 📝🔎
+
+#### Configure cognee
+
+##### install
+
+Inside .openclaw_install folder, install cognee with
+
+`pnpm openclaw plugins install @cognee/cognee-openclaw`
+
+##### configure
+
+Create a .openclaw/config.yaml like the one inside this repo cognee/.../config folder
+
+Go to `localhost:8000/docs` and create the dataset equivalent to the config.yaml
+
+##### enable cognee plugin
+
+run `pnpm openclaw plugins list` to see cognee's id to see its status
+
+it should be memory-cognee, now run
+
+`pnpm openclaw plugins enable memory-cognee`

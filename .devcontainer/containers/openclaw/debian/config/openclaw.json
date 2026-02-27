@@ -11,7 +11,7 @@
         "models": [
           {
             "id": "Ministral-3-3B-Instruct-2512-Q8_0.gguf",
-            "name": "gemma 4B",
+            "name": "ministral 4B",
             "reasoning": false,
             "input": [
               "text"
@@ -32,7 +32,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "llama/Ministral-3-3B-Instruct-2512-Q8_0"
+        "primary": "llama/Ministral-3-3B-Instruct-2512-Q8_0.gguf"
       },
       "models": {
         "llama/Ministral-3-3B-Instruct-2512-Q8_0.gguf": {}

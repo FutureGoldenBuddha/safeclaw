@@ -54,8 +54,8 @@ services:
     build:
       context: ./containers/squid/alpine
       dockerfile: Dockerfile.safe
-    ports:
-      - "3128:3128"
+    # ports:
+    #   - "3128:3128"
     restart: always
     networks:
       - openclaw_internal_secure
@@ -90,7 +90,12 @@ services:
     networks:
       - openclaw_internal_maintenance
       - openclaw_egress
-
+    healthcheck:
+      test: ["CMD", "squid", "-v"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      
   # -----------------------------------------------------------
   # LLAMACPP — local LLM server
   # note: put the models in the /models folder before setup
@@ -114,8 +119,8 @@ services:
       MODEL_PATH: /models/Ministral-3-3B-Instruct-2512-Q8_0.gguf
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: all,compute,graphics,video,utility
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
     volumes:
       - ./models:/models:ro  # read only
     deploy:
@@ -145,8 +150,8 @@ services:
   embeddings:
     image: ghcr.io/ggml-org/llama.cpp:server
     container_name: cognee_embeddings
-    ports:
-      - "8081:8081"
+    # ports:
+    #   - "8081:8081"
     volumes:
       - ./models:/models
     command: >
@@ -179,8 +184,8 @@ services:
       - POSTGRES_DB=cognee_db
       - POSTGRES_USER=cognee_user
       - POSTGRES_PASSWORD=cognee_password
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -212,6 +217,7 @@ services:
     networks:
       - openclaw_internal_secure   
       - openclaw_internal_maintenance 
+      - openclaw_host_access # for debug
     # depends_on:
     #   - llama
     #   - embeddings
@@ -230,6 +236,9 @@ networks:
     internal: true
   openclaw_egress:
     driver: bridge
+  openclaw_host_access:        # new — non-internal, no internet routing
+    driver: bridge
+    internal: false
 
 volumes:
   cognee_data:
