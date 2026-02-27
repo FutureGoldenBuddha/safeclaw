@@ -81,10 +81,12 @@ services:
   # FORWARD PROXY for open internet access (for maintenance)
   # -----------------------------------------------------------
   open_proxy_temp:
+    container_name: open_proxy
     build:
       context: ./containers/squid/alpine
       dockerfile: Dockerfile.open
-    container_name: open_proxy
+    ports:
+      - "3129:3129"
     networks:
       - openclaw_internal_maintenance
       - openclaw_egress
@@ -96,7 +98,7 @@ services:
   llama:
     container_name: llama
     # start as root, end as 1000 through entrypoint
-    user: "0:0"  
+    user: "root:root"  
     build: 
       context: ./containers/llm/llama/ubuntu
       dockerfile: Dockerfile   
@@ -156,9 +158,16 @@ services:
       --batch-size 2048
       --ubatch-size 2048
       -ngl 0
+    restart: unless-stopped
     networks:
       - openclaw_internal_secure   
       - openclaw_internal_maintenance 
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep cognee_embeddings || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s # Increased to give the model/GPU time to initialize
 
   # -----------------------------------------------------------
   # postgreSQL com pgvector- cognee

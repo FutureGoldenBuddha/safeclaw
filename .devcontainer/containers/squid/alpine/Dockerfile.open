@@ -24,7 +24,7 @@ RUN chmod +x /start-squid.sh \
     && chmod 644 /etc/squid/squid.conf \
     && chown squid:squid /etc/squid/squid.conf
 
-EXPOSE 3128/tcp
+EXPOSE 3129/tcp
 
 # Criar diretórios e dar permissões
 RUN mkdir -p /var/cache/squid /var/log/squid /var/run/squid && \
