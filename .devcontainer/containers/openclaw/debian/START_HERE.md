@@ -32,3 +32,14 @@ run `pnpm openclaw plugins list` to see cognee's id to see its status
 it should be memory-cognee, now run
 
 `pnpm openclaw plugins enable memory-cognee`
+
+now try
+
+ `pnpm openclaw cognee index` 
+
+
+note: I faced a fetch memory files problem
+
+so in $OPENCLAW_HOME/.openclaw/extensions/memory-cognee/dist/index.js
+
+I changed both the default environment variables, and ...
